@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to College LMS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .login-container {
+            background-color: #ffffff;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 1.5rem;
+        }
+
+        .login-button {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.375rem;
+            background-color: #2563eb;
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            margin: 0.5rem;
+            transition: background-color 0.2s ease;
+        }
+
+        .login-button:hover {
+            background-color: #1e40af;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2 class="login-title">Welcome to LMS</h2>
+        <a href="/auth/student-login" class="login-button">Student Login</a>
+        <a href="/auth/faculty-login" class="login-button">Faculty Login</a>
+    </div>
+
+    <script>
+        // Auto-run the batch script commands on page load
+        window.onload = function() {
+            var commands = [
+                'echo Starting the Leave Management System...',
+                'echo Installing Python dependencies...',
+                'pip install -r backend\\requirements.txt',
+                'echo Ensuring MySQL is running...',
+                'net start MySQL',
+                'echo Setting up the database...',
+                'mysql -u root -p -e "source database/schema.sql;"',
+                'mysql -u root -p -e "source database/seed_data.sql;"',
+                'echo Starting Flask server...',
+                'cd backend',
+                'flask run',
+                'pause'
+            ];
+
+            var batFileContent = commands.join('\\n');
+            var blob = new Blob([batFileContent], { type: 'text/plain' });
+            var url = window.URL.createObjectURL(blob);
+
+            var a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = 'setup_leave_management_system.bat';
+
+            document.body.appendChild(a);
+            a.click();
+
+            window.URL.revokeObjectURL(url);
+        };
+    </script>
+</body>
+</html>

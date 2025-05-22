@@ -1,0 +1,245 @@
+/*
+* Base styles for the layout
+* These styles will apply to all pages that extend this layout.
+*/
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f9fafb; /* Light gray background */
+    margin: 0;
+    padding: 0;
+}
+.container {
+    max-width: 1200px; /* Increased max-width for larger screens */
+    margin: 0 auto;
+    padding: 2rem;
+}
+header {
+    background-color: #ffffff; /* White header */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* Subtle shadow */
+    padding: 1rem 0;
+    margin-bottom: 2rem;
+}
+header .container { /* Ensure container applies to header */
+    display: flex;
+    justify-content: space-between; /* Space out logo and nav */
+    align-items: center; /* Vertically center items */
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 700; /* Bold logo */
+    color: #2563eb; /* Blue logo */
+    text-decoration: none; /* Remove underline from logo */
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+}
+nav ul li {
+    margin-left: 1.5rem; /* Increased margin between nav items */
+}
+nav ul li a {
+    color: #111827; /* Dark gray nav links */
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 600; /* Semi-bold nav links */
+    transition: color 0.2s ease; /* Smooth transition */
+}
+nav ul li a:hover {
+    color: #2563eb; /* Blue hover color */
+}
+
+footer {
+    background-color: #f0f0f0; /* Light gray footer */
+    text-align: center;
+    padding: 1rem 0;
+    margin-top: 2rem;
+    color: #6b7280;
+    font-size: 0.875rem;
+    border-top: 1px solid #d1d5db;
+}
+
+/* Styles for main content area */
+main {
+    flex: 1; /* Allow main to take up remaining vertical space */
+}
+
+/* Ensure consistent container spacing */
+.container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+}
+
+/* Media query for smaller screens (optional - adjust as needed) */
+@media (max-width: 768px) {
+    header .container {
+        flex-direction: column;
+        text-align: center;
+    }
+    nav ul {
+        flex-direction: column;
+        align-items: center;
+    }
+    nav ul li {
+        margin-left: 0;
+        margin-top: 1rem;
+    }
+}
+
+/*
+* Styles for the login page (student_login.html)
+*/
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f9fafb; /* Light gray background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.login-container {
+    background-color: #ffffff; /* White container */
+    border-radius: 0.5rem; /* Rounded corners */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* Subtle shadow */
+    padding: 2rem;
+    width: 100%;
+    max-width: 400px; /* Maximum width */
+    box-sizing: border-box; /* Include padding in width */
+}
+
+.login-title {
+    font-size: 1.5rem; /* Larger heading */
+    font-weight: 600; /* Semi-bold */
+    color: #111827; /* Dark gray text */
+    margin-bottom: 1.5rem; /* Increased margin */
+    text-align: center; /* Center heading */
+}
+
+.form-group {
+    margin-bottom: 1rem; /* Increased margin */
+}
+
+.form-label {
+    display: block;
+    font-size: 0.875rem; /* Smaller label */
+    color: #6b7280; /* Medium gray text */
+    margin-bottom: 0.5rem;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 0.375rem; /* Rounded corners */
+    border: 1px solid #d1d5db; /* Light gray border */
+    font-size: 1rem;
+    color: #111827; /* Dark gray text */
+    box-sizing: border-box; /* Ensure padding doesn't affect width */
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #2563eb; /* Blue focus border */
+    box-shadow: 0 0 0 3px rgba(39, 100, 240, 0.15); /* Light blue shadow */
+}
+
+.login-button {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 0.375rem; /* Rounded corners */
+    background-color: #2563eb; /* Blue button */
+    color: #ffffff; /* White text */
+    font-size: 1rem;
+    font-weight: 600; /* Semi-bold */
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease; /* Smooth transition */
+}
+
+.login-button:hover {
+    background-color: #1e40af; /* Darker blue on hover */
+}
+
+.login-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(39, 100, 240, 0.15); /* Light blue shadow */
+}
+
+.error-message {
+    color: #f43f5e; /* Red error text */
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+}
+
+.text-center {
+    text-align: center;
+    margin-top: 50px;
+}
+
+.text-center h1 {
+    font-size: 2.5rem;
+    color: #dc3545; /* Red for errors */
+}
+
+.text-center p {
+    font-size: 1.2rem;
+    color: #6c757d; /* Gray for text */
+}
+
+.text-center .button {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #007bff; /* Blue button */
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.text-center .button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+/* Navigation Bar */
+#nav-bar {
+    display: flex;
+    gap: 15px;
+    margin: 10px 0;
+}
+
+#nav-bar a {
+    text-decoration: none;
+    color: #007bff;
+    font-weight: bold;
+}
+
+#nav-bar a:hover {
+    text-decoration: underline;
+}
+
+/* Logout Button */
+#logout-button {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+#logout-button:hover {
+    background-color: #c82333;
+}
+
+/* Error Messages */
+.error-message {
+    color: red;
+    font-weight: bold;
+    text-align: center;
+    margin: 10px 0;
+}

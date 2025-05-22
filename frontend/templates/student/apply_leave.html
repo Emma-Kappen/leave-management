@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apply for Leave</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Reset styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb;
+            margin: 0;
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align form to the top for better visibility */
+            min-height: 100vh;
+        }
+
+        .apply-leave-container {
+            background-color: #ffffff;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            width: 100%;
+            max-width: 600px; /* Increased max-width for form */
+        }
+
+        .apply-leave-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem; /* Increased margin */
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.9rem; /* Slightly larger label */
+            color: #374151; /* Darker gray */
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 0.8rem; /* Increased padding */
+            border-radius: 0.375rem;
+            border: 1px solid #d1d5db;
+            font-size: 1rem;
+            color: #111827;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(39, 100, 240, 0.15);
+        }
+
+        .form-select {
+            appearance: none; /* Remove default arrow */
+            background-image: url('data:image/svg+xml;charset=UTF-8,<svg fill="%23374151" viewBox="0 0 20 20"><path d="M7 7l3-3 3 3m0 6l-3 3-3-3"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1rem 1rem;
+        }
+
+        .form-textarea {
+            min-height: 100px;
+        }
+
+        .submit-button {
+            width: 100%;
+            padding: 1rem; /* Increased padding */
+            border-radius: 0.375rem;
+            background-color: #16a34a; /* Green submit button */
+            color: #ffffff;
+            font-size: 1.1rem; /* Slightly larger font */
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .submit-button:hover {
+            background-color: #15803d; /* Darker green */
+        }
+
+        .submit-button:focus {
+            box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.15);
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+
+        .back-button {
+            padding: 0.75rem 1.25rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            background-color: #f9fafb;
+            color: #111827;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.2s ease;
+            margin-left: 1rem;
+        }
+
+        .back-button:hover {
+            background-color: #edf2f7;
+        }
+    </style>
+</head>
+<body>
+    <div class="apply-leave-container">
+        <h2 class="apply-leave-title">Apply for Leave</h2>
+        <form id="apply-leave-form">
+            <div class="form-group">
+                <label for="leaveType" class="form-label">Leave Type</label>
+                <select id="leaveType" name="leaveType" class="form-select" required>
+                    <option value="">Select Leave Type</option>
+                    <option value="sick">Sick Leave</option>
+                    <option value="casual">Casual Leave</option>
+                    <option value="medical">Medical Leave</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="subject" class="form-label">Select Subject</label>
+                <select id="subject" name="subject" class="form-select" required>
+                    <option value="">Select Subject</option>
+                    <option value="BCS401">BCS401 - Analysis and Design of Algorithms</option>
+                    <option value="BA1402">BA1402 - Artificial Intelligence</option>
+                    <option value="BCS403">BCS403 - Database Management Systems</option>
+                    <option value="BCS405A">BCS405A - Discrete Mathematics</option>
+                    <option value="BDS456B">BDS456B - Mongo DB</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="startDate" class="form-label">Start Date</label>
+                <input type="date" id="startDate" name="startDate" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label for="endDate" class="form-label">End Date</label>
+                <input type="date" id="endDate" name="endDate" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label for="reason" class="form-label">Reason for Leave</label>
+                <textarea id="reason" name="reason" class="form-textarea" rows="4" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="attachment" class="form-label">Supporting Document (Optional - PDF, max 2MB)</label>
+                <input type="file" id="attachment" name="attachment" class="form-input" accept=".pdf" max-size="2097152">
+            </div>
+            <div class="button-container">
+                <a href="/templates/student/dashboard.html" class="back-button">Go Back</a>
+                <button type="submit" class="submit-button">Submit Application</button>
+            </div>
+        </form>
+    </div>
+    <!-- <script src="/static/js/apply_leave.js"></script> -->
+</body>
+</html>

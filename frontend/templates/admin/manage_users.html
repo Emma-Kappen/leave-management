@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage User Accounts</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Basic Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb;
+            margin: 0;
+            padding: 0;
+        }
+
+        .manage-users-container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #ffffff;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .manage-users-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .user-list-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .user-list-table th,
+        .user-list-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 0.9rem;
+        }
+
+        .user-list-table th {
+            background-color: #f3f4f6;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .user-list-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .action-button {
+            padding: 0.5rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            background-color: #f9fafb;
+            color: #111827;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            text-decoration: none;
+        }
+
+        .action-button:hover {
+            background-color: #edf2f7;
+        }
+
+        .add-new-button-container {
+            text-align: right;
+            margin-bottom: 1rem;
+        }
+
+        .add-new-button {
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.375rem;
+            background-color: #16a34a;
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            text-decoration: none;
+        }
+
+        .add-new-button:hover {
+            background-color: #15803d;
+        }
+
+        .no-users-message {
+            text-align: center;
+            color: #6b7280;
+            font-size: 1rem;
+            margin-top: 2rem;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+
+        .back-button {
+            padding: 0.75rem 1.25rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            background-color: #f9fafb;
+            color: #111827;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.2s ease;
+            margin-left: 1rem;
+        }
+
+        .back-button:hover {
+            background-color: #edf2f7;
+        }
+    </style>
+</head>
+<body>
+    <div class="manage-users-container">
+        <h2 class="manage-users-title">Manage User Accounts</h2>
+        <div class="add-new-button-container">
+            <a href="/templates/admin/add_user.html" class="add-new-button">Add New User</a>
+        </div>
+        <table class="user-list-table">
+            <thead>
+                <tr>
+                    <th>User ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Department</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>12345</td>
+                    <td>John Doe</td>
+                    <td>john.doe@example.com</td>
+                    <td>Student</td>
+                    <td>Computer Science</td>
+                    <td class="action-buttons">
+                        <a href="/templates/admin/edit_user.html?id=12345" class="action-button">Edit</a>
+                        <button class="action-button">Delete</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>FS6789</td>
+                    <td>Dr. Alice Johnson</td>
+                    <td>alice.j@example.com</td>
+                    <td>Faculty</td>
+                    <td>Computer Science</td>
+                    <td class="action-buttons">
+                        <a href="/templates/admin/edit_user.html?id=FS6789" class="action-button">Edit</a>
+                        <button class="action-button">Delete</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p class="no-users-message" style="display: none;">No user accounts found.</p>
+        <div class="button-container">
+            <a href="/templates/admin/admin_dashboard.html" class="back-button">Go Back</a>
+        </div>
+    </div>
+    <!-- <script src="../static/js/manage_users.js"></script> -->
+</body>
+</html>

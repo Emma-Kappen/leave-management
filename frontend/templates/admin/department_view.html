@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Departments & Users</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Basic Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb;
+            margin: 0;
+            padding: 0;
+        }
+
+        .department-view-container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #ffffff;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .department-view-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .department-list {
+            margin-top: 1rem;
+        }
+
+        .department-card {
+            background-color: #f9fafb;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            margin-bottom: 1rem;
+            padding: 1.5rem;
+        }
+
+        .department-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 0.5rem;
+        }
+
+        .user-list {
+            list-style: none;
+            padding-left: 1rem;
+        }
+
+        .user-list li {
+            font-size: 0.9rem;
+            color: #374151;
+            margin-bottom: 0.25rem;
+        }
+
+        .no-departments-message {
+            text-align: center;
+            color: #6b7280;
+            font-size: 1rem;
+            margin-top: 2rem;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+
+        .back-button {
+            padding: 0.75rem 1.25rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            background-color: #f9fafb;
+            color: #111827;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.2s ease;
+            margin-left: 1rem;
+        }
+
+        .back-button:hover {
+            background-color: #edf2f7;
+        }
+    </style>
+</head>
+<body>
+    <div class="department-view-container">
+        <h2 class="department-view-title">Departments & Users</h2>
+        <div class="department-list">
+            <div class="department-card">
+                <h3 class="department-name">Computer Science</h3>
+                <ul class="user-list">
+                    <li>John Doe (Student)</li>
+                    <li>Jane Smith (Student)</li>
+                    <li>Dr. Alice Johnson (Faculty)</li>
+                </ul>
+            </div>
+            <div class="department-card">
+                <h3 class="department-name">Electrical Engineering</h3>
+                <ul class="user-list">
+                    <li>Peter Jones (Student)</li>
+                    <li>Dr. Bob Williams (Faculty)</li>
+                </ul>
+            </div>
+        </div>
+        <p class="no-departments-message" style="display: none;">No departments found.</p>
+        <div class="button-container">
+            <a href="/templates/admin/admin_dashboard.html" class="back-button">Go Back</a>
+        </div>
+    </div>
+    <!-- <script src="/static/js/department_view.js"></script> -->
+</body>
+</html>
