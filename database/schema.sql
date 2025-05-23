@@ -134,6 +134,16 @@ CREATE TABLE IF NOT EXISTS `Leave_Approver` (
     ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
+-- ─── USER_PASSWORD TABLE
+CREATE TABLE IF NOT EXISTS `user_password` (
+  `user_id` VARCHAR(12) NOT NULL,
+  `password` VARCHAR(255) NOT NULL,
+  `role` ENUM('Student', 'Faculty', 'Admin') NOT NULL,
+  PRIMARY KEY (`user_id`),
+  FOREIGN KEY (`user_id`) REFERENCES `Student` (`USN`) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (`user_id`) REFERENCES `Staff` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
 -- ─── TRIGGERS FOR NEXT‑DAY RULE ────────────────────────────────────────
 DELIMITER $
 CREATE TRIGGER trg_leave_bi

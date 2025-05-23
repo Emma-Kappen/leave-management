@@ -10,9 +10,9 @@ admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 def restrict_to_admins():
     require_role('Admin')
 
-@admin_bp.route('/dashboard')
-def dashboard():
-    return render_template('admin/dashboard.html')
+@admin_bp.route('/dashboard', methods=['GET'])
+def admin_dashboard():
+    return render_template('admin/admin_dashboard.html')
 
 @admin_bp.route('/students', methods=['GET', 'POST'])
 def view_students():
@@ -158,28 +158,26 @@ def update_user(user_id):
 @admin_bp.route('/users', methods=['GET'])
 def get_all_users():
     try:
+        # Fetch all students and faculty
         students = Student.query.all()
         faculty = Staff.query.all()
 
-        users = [
-            {
-                "user_id": student.USN,
-                "name": student.Name,
-                "email": student.E_Mail,
-                "role": "Student",
-                "department": student.Dept_ID
-            }
-            for student in students
-        ] + [
-            {
-                "user_id": staff.ID,
-                "name": staff.Name,
-                "email": staff.E_Mail,
-                "role": "Faculty",
-                "department": None  # Faculty may not have a department
-            }
-            for staff in faculty
-        ]
+        users = []
+        users.extend([{
+            "id": student.USN,
+            "name": student.Name,
+            "email": student.E_Mail,
+            "role": "Student",
+            "department": student.Dept_ID
+        } for student in students])
+
+        users.extend([{
+            "id": staff.ID,
+            "name": staff.Name,
+            "email": staff.E_Mail,
+            "role": "Faculty",
+            "department": None  # Faculty may not have a department
+        } for staff in faculty])
 
         return jsonify(users), 200
     except Exception as e:

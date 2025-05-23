@@ -11,8 +11,10 @@ def restrict_to_faculty():
     require_role('Faculty')
 
 @faculty_bp.route('/dashboard')
+@login_required
 def dashboard():
-    return render_template('faculty/dashboard.html')
+    require_role('Faculty')
+    return render_template('faculty/faculty_dashboard.html')
 
 @faculty_bp.route('/leave-requests', methods=['GET'])
 def leave_requests():

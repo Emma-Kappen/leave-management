@@ -17,6 +17,10 @@ class Staff(UserMixin, db.Model):
     Supervisor_ID = db.Column(db.String(12), db.ForeignKey('Staff.ID'))
     password = db.Column(db.String(128))  # hashed password
 
+    @property
+    def role(self):
+        return 'Faculty'
+
     def get_id(self):
         return self.ID
 
@@ -28,6 +32,10 @@ class Student(UserMixin, db.Model):
     Join_Date = db.Column(db.Date)
     Dept_ID = db.Column(db.Integer, db.ForeignKey('Department.ID'))
     password = db.Column(db.String(128))  # hashed password
+
+    @property
+    def role(self):
+        return 'Student'
 
     def get_id(self):
         return self.USN

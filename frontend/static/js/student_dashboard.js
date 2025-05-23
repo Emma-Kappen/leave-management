@@ -1,6 +1,6 @@
 async function logout() {
     try {
-        const response = await fetch('/backend/app/routes/auth.py', {
+        const response = await fetch('/auth/logout', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

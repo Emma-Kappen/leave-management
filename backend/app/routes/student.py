@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, render_template
 from ..models import db, Leave
 from flask_login import login_required, current_user
 from datetime import datetime
@@ -57,3 +57,41 @@ def leave_status():
     require_role('Student')
     leaves = Leave.query.filter_by(Applicant_ID=current_user.id).all()
     return jsonify([leave.to_dict() for leave in leaves])
+
+@student_bp.route('/attendance', methods=['GET'])
+@login_required
+def get_attendance():
+    require_role('Student')
+    try:
+        # Fetch attendance data for the logged-in student
+        attendance_records = db.session.execute(
+            """
+            SELECT a.Subject_Code, s.Name AS Subject_Name, a.Classes_Taken, a.Classes_Attended
+            FROM Attendance a
+            JOIN Subject s ON a.Subject_Code = s.Code
+            WHERE a.USN = :usn
+            """,
+            {"usn": current_user.USN}
+        ).fetchall()
+
+        # Format the data for the response
+        attendance_data = [
+            {
+                "subject_code": record.Subject_Code,
+                "subject_name": record.Subject_Name,
+                "classes_taken": record.Classes_Taken,
+                "classes_attended": record.Classes_Attended,
+                "attendance_percentage": round((record.Classes_Attended / record.Classes_Taken) * 100, 2) if record.Classes_Taken > 0 else 0
+            }
+            for record in attendance_records
+        ]
+
+        return jsonify(attendance_data), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@student_bp.route('/dashboard', methods=['GET'])
+@login_required
+def student_dashboard():
+    require_role('Student')
+    return render_template('student/dashboard.html')

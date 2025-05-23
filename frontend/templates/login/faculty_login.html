@@ -126,37 +126,52 @@
         const passwordError = document.getElementById('password-error');
         const loginError = document.getElementById('login-error');
 
-        loginForm.addEventListener('submit', (event) => {
+        loginForm.addEventListener('submit', async (event) => {
             event.preventDefault();
-            let isValid = true;
 
             // Reset error messages
             facultyIdError.textContent = '';
             passwordError.textContent = '';
             loginError.textContent = '';
 
+            // Collect input values
+            const facultyId = facultyIdInput.value.trim();
+            const password = passwordInput.value.trim();
+
             // Client-side validation
-            if (!facultyIdInput.value.trim()) {
+            if (!facultyId) {
                 facultyIdError.textContent = 'Faculty ID is required';
-                isValid = false;
+                return;
             }
-            if (!passwordInput.value.trim()) {
+            if (!password) {
                 passwordError.textContent = 'Password is required';
-                isValid = false;
+                return;
             }
 
-            if (isValid) {
-                // Simulate login (replace with actual fetch)
-                setTimeout(() => {
-                    //  In a real application, you would send this data to your Flask backend
-                    //  using the fetch API.
-                    if (facultyIdInput.value === '123' && passwordInput.value === 'password') {
-                        //  Successful login
-                        window.location.href = '/frontend/templates/faculty/faculty_dashboard.html'; //  Placeholder
+            try {
+                // Send login request to the backend
+                const response = await fetch('/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ user_id: facultyId, password }),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.role === 'Faculty') {
+                        window.location.href = data.redirect || '/faculty/dashboard';
                     } else {
-                        loginError.textContent = 'Invalid credentials. Please try again.';
+                        loginError.textContent = 'Invalid role. Please try again.';
                     }
-                }, 1000); // Simulate 1 second delay
+                } else {
+                    const errorData = await response.json();
+                    loginError.textContent = errorData.error || 'Invalid credentials. Please try again.';
+                }
+            } catch (error) {
+                console.error('Error during login:', error);
+                loginError.textContent = 'An error occurred. Please try again later.';
             }
         });
     </script>

@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const logoutButton = document.getElementById('logout-button');
     const userRoleElement = document.getElementById('user-role');
     const navBar = document.getElementById('nav-bar'); // Add this element in your layout.html
+    const loginForm = document.getElementById('login-form');
 
     // Utility function for API calls with global error handling
     async function apiFetch(url, options = {}) {
@@ -77,4 +78,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Fetch and display the user's role and update navigation
     fetchUserRoleAndUpdateNav();
+
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const formData = new FormData(loginForm);
+            const userData = Object.fromEntries(formData.entries());
+
+            try {
+                const response = await fetch('/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userData)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    alert(result.message);
+                    if (result.role === 'Student') {
+                        window.location.href = '/templates/student/dashboard.html';
+                    } else if (result.role === 'Faculty') {
+                        window.location.href = '/templates/faculty/faculty_dashboard.html';
+                    } else if (result.role === 'Admin') {
+                        window.location.href = '/templates/admin/admin_dashboard.html';
+                    }
+                } else {
+                    const errorData = await response.json();
+                    alert(`Login failed: ${errorData.error}`);
+                }
+            } catch (error) {
+                console.error('Error during login:', error);
+                alert('An error occurred. Please try again.');
+            }
+        });
+    }
 });

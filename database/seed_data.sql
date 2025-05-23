@@ -69,4 +69,32 @@ INSERT INTO Attendance (USN, Subject_Code, Classes_Taken, Classes_Attended) VALU
 
 -- Leave Applications
 INSERT INTO Leave (`Applicant_ID`, `Leave_Type`, `Reason`, `Start_Date`, `End_Date`, `Approval_Status`) VALUES
-('1CS21CS001', 'SICK', 'Fever and cold', CURDATE() + INTERVAL
+('1CS21CS001', 'SICK', 'Fever and cold', CURDATE() + INTERVAL 1 DAY, CURDATE() + INTERVAL 3 DAY, 'PENDING'),
+('1CS21CS002', 'CASUAL', 'Family function', CURDATE() + INTERVAL 2 DAY, CURDATE() + INTERVAL 5 DAY, 'APPROVED'),
+('1CS21CS003', 'SICK', 'Severe headache', CURDATE() + INTERVAL 1 DAY, CURDATE() + INTERVAL 2 DAY, 'REJECTED'),
+('1CS21CS004', 'SICK', 'Flu symptoms', CURDATE() + INTERVAL 3 DAY, CURDATE() + INTERVAL 6 DAY, 'PENDING'),
+('1CS21CS005', 'CASUAL', 'Wedding', CURDATE() + INTERVAL 4 DAY, CURDATE() + INTERVAL 7 DAY, 'APPROVED'),
+('1EC21EC006', 'SICK', 'High fever', CURDATE() + INTERVAL 1 DAY, CURDATE() + INTERVAL 4 DAY, 'PENDING'),
+('1EC21EC007', 'SICK', 'Cold and cough', CURDATE() + INTERVAL 2 DAY, CURDATE() + INTERVAL 5 DAY, 'APPROVED'),
+('1ME21ME011', 'SICK', 'Migraine', CURDATE() + INTERVAL 1 DAY, CURDATE() + INTERVAL 3 DAY, 'REJECTED'),
+('1ME21ME012', 'CASUAL', 'Short trip', CURDATE() + INTERVAL 3 DAY, CURDATE() + INTERVAL 6 DAY, 'PENDING');
+
+-- Populate user_password table with hashed passwords
+INSERT INTO user_password (user_id, password, role) VALUES
+-- Students
+('1CS21CS001', SHA2('password1', 256), 'Student'),
+('1CS21CS002', SHA2('password2', 256), 'Student'),
+('1CS21CS003', SHA2('password3', 256), 'Student'),
+('1CS21CS004', SHA2('password4', 256), 'Student'),
+('1CS21CS005', SHA2('password5', 256), 'Student'),
+('1EC21EC006', SHA2('password6', 256), 'Student'),
+('1EC21EC007', SHA2('password7', 256), 'Student'),
+('1ME21ME011', SHA2('password8', 256), 'Student'),
+('1ME21ME012', SHA2('password9', 256), 'Student'),
+-- Faculty
+('FAC001', SHA2('password10', 256), 'Faculty'),
+('FAC002', SHA2('password11', 256), 'Faculty'),
+('FAC003', SHA2('password12', 256), 'Faculty'),
+('FAC004', SHA2('password13', 256), 'Faculty'),
+-- Admin
+('ADMIN001', SHA2('password14', 256), 'Admin');
