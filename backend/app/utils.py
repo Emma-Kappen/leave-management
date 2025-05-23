@@ -1,6 +1,6 @@
 from flask import abort
 from flask_login import current_user
-from app.models import Staff
+from .models import Staff
 from werkzeug.security import generate_password_hash, check_password_hash
 
 def is_admin_user():

@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
-from app.models import db, Student, Staff, Leave, Department
-from app.utils import is_admin_user, hash_password, require_role
+from ..models import db, Student, Staff, Leave, Department
+from ..utils import is_admin_user, hash_password, require_role
 from flask_login import login_required
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')

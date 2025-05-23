@@ -3,12 +3,12 @@ from dotenv import load_dotenv
 from flask import Flask
 from flask_cors import CORS
 from flask_login import LoginManager
-from .models import db  # Ensure models.py exists in backend/app/
+from .models import db  # Use relative import for models
 from .routes.auth import auth_bp
 from .routes.student import student_bp
 from .routes.faculty import faculty_bp
 from .routes.admin import admin_bp
-from backend.config import DATABASE_URI
+from backend.config import Config
 
 load_dotenv()
 login_manager = LoginManager()
@@ -20,9 +20,9 @@ def create_app():
         static_folder=os.path.abspath(os.path.join(os.path.dirname(__file__), '../../frontend/static'))
     )
     CORS(app)
-    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default_secret')
-    app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SECRET_KEY'] = Config.SECRET_KEY
+    app.config['SQLALCHEMY_DATABASE_URI'] = Config.SQLALCHEMY_DATABASE_URI
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = Config.SQLALCHEMY_TRACK_MODIFICATIONS
 
     db.init_app(app)
     login_manager.init_app(app)

@@ -1,8 +1,8 @@
 from flask import Blueprint, request, jsonify
-from app.models import db, Leave
+from ..models import db, Leave
 from flask_login import login_required, current_user
 from datetime import datetime
-from app.utils import require_role
+from ..utils import require_role
 
 student_bp = Blueprint('student', __name__)
 

@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
-from app.models import db, Leave, LeaveApprover, Student
-from app.utils import current_user_id, require_role
+from ..models import db, Leave, LeaveApprover, Student
+from ..utils import current_user_id, require_role
 from flask_login import login_required, current_user
 
 faculty_bp = Blueprint('faculty', __name__, url_prefix='/faculty')
