@@ -3,12 +3,14 @@ from dotenv import load_dotenv
 from flask import Flask
 from flask_cors import CORS
 from flask_login import LoginManager
-from .models import db  # Use relative import for models
 from .routes.auth import auth_bp
 from .routes.student import student_bp
 from .routes.faculty import faculty_bp
 from .routes.admin import admin_bp
 from backend.config import Config
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()
 
 load_dotenv()
 login_manager = LoginManager()

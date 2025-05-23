@@ -54,8 +54,8 @@
 <body>
     <div class="login-container">
         <h2 class="login-title">Welcome to LMS</h2>
-        <a href="/login/student" class="login-button">Student Login</a>
-        <a href="/login/faculty" class="login-button">Faculty Login</a>
+        <a href="/frontend/templates/login/student_login.html" class="login-button">Student Login</a>
+        <a href="/frontend/templates/login/faculty_login.html" class="login-button">Faculty Login</a>
     </div>
 
     <script>
@@ -76,19 +76,20 @@
                 'pause'
             ];
 
-            var batFileContent = commands.join('\\n');
-            var blob = new Blob([batFileContent], { type: 'text/plain' });
-            var url = window.URL.createObjectURL(blob);
+            // Remove the auto-download functionality
+            // var batFileContent = commands.join('\n');
+            // var blob = new Blob([batFileContent], { type: 'text/plain' });
+            // var url = window.URL.createObjectURL(blob);
 
-            var a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            a.download = 'setup_leave_management_system.bat';
+            // var a = document.createElement('a');
+            // a.style.display = 'none';
+            // a.href = url;
+            // a.download = 'setup_leave_management_system.bat';
 
-            document.body.appendChild(a);
-            a.click();
+            // document.body.appendChild(a);
+            // a.click();
 
-            window.URL.revokeObjectURL(url);
+            // window.URL.revokeObjectURL(url);
         };
     </script>
 </body>

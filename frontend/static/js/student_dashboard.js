@@ -1,6 +1,6 @@
 async function logout() {
     try {
-        const response = await fetch('/auth/logout', {
+        const response = await fetch('/backend/app/routes/auth.py', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -9,7 +9,7 @@ async function logout() {
 
         if (response.ok) {
             alert('Logged out successfully!');
-            window.location.href = '/templates/login/student_login.html'; // Redirect to login page
+            window.location.href = '/frontend/templates/login/student_login.html'; // Redirect to login page
         } else {
             alert('Failed to log out. Please try again.');
         }

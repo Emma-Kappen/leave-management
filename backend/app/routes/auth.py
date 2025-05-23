@@ -1,11 +1,11 @@
-from flask import Blueprint, request, jsonify, render_template
+from flask import Blueprint, request, jsonify, render_template, redirect
 from flask_login import login_user, logout_user, login_required, current_user
 from ..models import Student, Staff
 from ..utils import verify_password
 
 auth_bp = Blueprint('auth', __name__)
 
-@auth_bp.route('/login/student', methods=['POST'])
+@auth_bp.route('/frontend/templates/login/student_login.html', methods=['POST'])
 def login_student():
     data = request.get_json()
     student = Student.query.filter_by(USN=data['usn']).first()
@@ -15,7 +15,7 @@ def login_student():
         return jsonify({'message': 'Student login successful'})
     return jsonify({'error': 'Invalid credentials'}), 401
 
-@auth_bp.route('/login/faculty', methods=['POST'])
+@auth_bp.route('/frontend/templates/login/faculty_login.html', methods=['POST'])
 def login_faculty():
     data = request.get_json()
     faculty = Staff.query.filter_by(ID=data['id']).first()
@@ -25,11 +25,11 @@ def login_faculty():
         return jsonify({'message': 'Faculty login successful'})
     return jsonify({'error': 'Invalid credentials'}), 401
 
-@auth_bp.route('/logout', methods=['POST'])
+@auth_bp.route('/logout', methods=['GET'])
 @login_required
 def logout():
     logout_user()
-    return jsonify({'message': 'Logged out successfully'})
+    return redirect('/frontend/templates/login/student_login.html')  # Redirect to student login page after logout
 
 @auth_bp.route('/user-role', methods=['GET'])
 @login_required
@@ -42,4 +42,4 @@ def get_user_role():
 
 @auth_bp.route('/student-login', methods=['GET'])
 def student_login():
-    return render_template('login/student_login.html')
+    return render_template('/frontend/templates/login/student_login.html')
