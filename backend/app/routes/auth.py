@@ -1,10 +1,21 @@
 from flask import Blueprint, request, jsonify, render_template, redirect
 from flask_login import login_user, logout_user, login_required, current_user
-from ..models import Student, Staff
-from ..utils import verify_password
-from ..db import db
+from werkzeug.security import check_password_hash
+from ..db import get_connection
+import json
+import os
 
 auth_bp = Blueprint('auth', __name__)
+
+def get_user_password(user_id):
+    """Get user's password from users.json"""
+    try:
+        with open(os.path.join('backend', 'users.json'), 'r') as f:
+            users = json.load(f)
+            return users.get(user_id)
+    except Exception as e:
+        print(f"Error reading users.json: {e}")
+        return None
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
@@ -15,19 +26,37 @@ def login():
 
         user_id = data['user_id']
         password = data['password']
-
-        # Try to find the user as a student
-        user = Student.query.filter_by(USN=user_id).first()
-        role = 'Student'
-        redirect_url = '/student/dashboard'
         
-        # If not found as student, try as faculty
-        if not user:
-            user = Staff.query.filter_by(ID=user_id).first()
-            role = 'Faculty'
-            redirect_url = '/faculty/dashboard'
+        # Get stored password
+        stored_password = get_user_password(user_id)
+        if not stored_password:
+            return jsonify({'error': 'Invalid credentials'}), 401
 
-        if user and verify_password(password, user.password):
+        # Simple password check (not using hash verification)
+        if stored_password != password:
+            return jsonify({'error': 'Invalid credentials'}), 401
+
+        connection = get_connection()
+        cursor = connection.cursor(dictionary=True)
+
+        # Check if user exists in database
+        if user_id.startswith(('ADMIN', 'FAC')):
+            cursor.execute("SELECT * FROM staff WHERE ID = %s", (user_id,))
+            user_data = cursor.fetchone()
+            role = 'Admin' if user_id.startswith('ADMIN') else 'Faculty'
+            redirect_url = '/admin/dashboard' if role == 'Admin' else '/faculty/dashboard'
+        else:
+            cursor.execute("SELECT * FROM student WHERE USN = %s", (user_id,))
+            user_data = cursor.fetchone()
+            role = 'Student'
+            redirect_url = '/student/dashboard'
+
+        cursor.close()
+        connection.close()
+
+        if user_data:
+            from .. import User
+            user = User(user_id, role.lower(), user_data)
             login_user(user)
             return jsonify({
                 'message': f'{role} login successful',
@@ -35,9 +64,10 @@ def login():
                 'redirect': redirect_url
             }), 200
         
-        return jsonify({'error': 'Invalid credentials'}), 401
+        return jsonify({'error': 'User not found in database'}), 401
+
     except Exception as e:
-        print(f"Login error: {str(e)}")  # Log the error
+        print(f"Login error: {str(e)}")
         return jsonify({'error': 'An error occurred during login. Please try again.'}), 500
 
 @auth_bp.route('/logout', methods=['GET', 'POST'])
@@ -49,14 +79,13 @@ def logout():
 @auth_bp.route('/check-auth', methods=['GET'])
 def check_auth():
     if current_user.is_authenticated:
-        role = 'Student' if hasattr(current_user, 'USN') else 'Faculty'
         return jsonify({
             'authenticated': True,
-            'role': role,
-            'redirect': f'/{role.lower()}/dashboard'
+            'role': current_user.user_type,
+            'redirect': f'/{current_user.user_type}/dashboard'
         })
     return jsonify({'authenticated': False}), 401
 
 @auth_bp.route('/student-login', methods=['GET'])
 def student_login():
-    return render_template('/frontend/templates/login/student_login.html')
+    return render_template('login/student_login.html')

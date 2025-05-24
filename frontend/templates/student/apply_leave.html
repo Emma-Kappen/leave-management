@@ -129,12 +129,32 @@
         .back-button:hover {
             background-color: #edf2f7;
         }
+        
+        .alert {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+        }
+        
+        .alert-success {
+            background-color: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+        
+        .alert-error {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
     </style>
 </head>
 <body>
     <div class="apply-leave-container">
         <h2 class="apply-leave-title">Apply for Leave</h2>
-        <form id="apply-leave-form">
+        <div id="alert-container" style="display: none;"></div>
+        <form id="apply-leave-form" method="POST" enctype="multipart/form-data">
             <div class="form-group">
                 <label for="leaveType" class="form-label">Leave Type</label>
                 <select id="leaveType" name="leaveType" class="form-select" required>
@@ -170,14 +190,114 @@
             </div>
             <div class="form-group">
                 <label for="attachment" class="form-label">Supporting Document (Optional - PDF, max 2MB)</label>
-                <input type="file" id="attachment" name="attachment" class="form-input" accept=".pdf" max-size="2097152">
+                <input type="file" id="attachment" name="attachment" class="form-input" accept=".pdf">
             </div>
+            <input type="hidden" id="user_id" name="user_id" value="">
             <div class="button-container">
                 <a href="/frontend/templates/student/dashboard.html" class="back-button">Go Back</a>
                 <button type="submit" class="submit-button">Submit Application</button>
             </div>
         </form>
     </div>
-    <!-- <script src="/frontend/static/js/apply_leave.js"></script> -->
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get user ID from URL or cookie
+            function getUserId() {
+                // First try to get from URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const userIdFromUrl = urlParams.get('user_id');
+                if (userIdFromUrl) {
+                    return userIdFromUrl;
+                }
+                
+                // Then try to get from cookie
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.startsWith('user_id=')) {
+                        return cookie.substring('user_id='.length, cookie.length);
+                    }
+                }
+                
+                return '1CS21CS001'; // Default for testing
+            }
+            
+            // Set user ID in hidden field
+            document.getElementById('user_id').value = getUserId();
+            
+            // Set minimum date for start date to tomorrow
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const tomorrowStr = tomorrow.toISOString().split('T')[0];
+            document.getElementById('startDate').setAttribute('min', tomorrowStr);
+            
+            // Update end date min value when start date changes
+            document.getElementById('startDate').addEventListener('change', function() {
+                const startDate = this.value;
+                document.getElementById('endDate').setAttribute('min', startDate);
+                
+                // If end date is before start date, reset it
+                if (document.getElementById('endDate').value < startDate) {
+                    document.getElementById('endDate').value = startDate;
+                }
+            });
+            
+            // Form submission
+            document.getElementById('apply-leave-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                
+                // Show loading state
+                const submitBtn = document.querySelector('.submit-button');
+                const originalBtnText = submitBtn.textContent;
+                submitBtn.textContent = 'Submitting...';
+                submitBtn.disabled = true;
+                
+                fetch('http://127.0.0.1:5001/apply-leave', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include' // Include cookies in the request
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        showAlert('error', data.error);
+                    } else {
+                        showAlert('success', 'Leave application submitted successfully!');
+                        document.getElementById('apply-leave-form').reset();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showAlert('error', 'An error occurred while submitting your application.');
+                })
+                .finally(() => {
+                    // Reset button state
+                    submitBtn.textContent = originalBtnText;
+                    submitBtn.disabled = false;
+                });
+            });
+            
+            // Show alert message
+            function showAlert(type, message) {
+                const alertContainer = document.getElementById('alert-container');
+                alertContainer.className = `alert alert-${type}`;
+                alertContainer.textContent = message;
+                alertContainer.style.display = 'block';
+                
+                // Scroll to top to show the alert
+                window.scrollTo(0, 0);
+                
+                // Auto-hide success messages after 5 seconds
+                if (type === 'success') {
+                    setTimeout(() => {
+                        alertContainer.style.display = 'none';
+                    }, 5000);
+                }
+            }
+        });
+    </script>
 </body>
 </html>

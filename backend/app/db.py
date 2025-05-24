@@ -1,70 +1,64 @@
-from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash
+import mysql.connector
+import os
+from dotenv import load_dotenv
 
-db = SQLAlchemy()
+load_dotenv()
 
-def init_db(app):
-    with app.app_context():
-        db.create_all()
+def get_connection():
+    """Establish a connection to the MySQL database."""
+    try:
+        return mysql.connector.connect(
+            host=os.getenv("DB_HOST", "localhost"),
+            user=os.getenv("DB_USER", "root"),
+            password=os.getenv("DB_PASSWORD", ""),
+            database=os.getenv("DB_NAME", "college_leave_mgmt")
+        )
+    except Exception as e:
+        print(f"Database connection error: {str(e)}")
+        raise
 
-        # Import models here to avoid circular imports
-        from .models import Staff, Student
+def init_db():
+    """Initialize the database with required tables."""
+    try:
+        connection = get_connection()
+        cursor = connection.cursor()
 
-        # Check if admin user exists, if not create one
-        admin = Staff.query.filter_by(ID='ADMIN001').first()
-        if not admin:
-            admin = Staff(
-                ID='ADMIN001',
-                Name='Admin User',
-                E_Mail='admin@college.edu',
-                Designation='Administrator',
-                password=generate_password_hash('admin123')
+        # Create staff table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS staff (
+                ID VARCHAR(10) PRIMARY KEY,
+                Name VARCHAR(100),
+                E_Mail VARCHAR(100),
+                Designation VARCHAR(50)
             )
-            db.session.add(admin)
+        """)
 
-        # Add a test faculty member if not exists
-        faculty = Staff.query.filter_by(ID='FAC001').first()
-        if not faculty:
-            faculty = Staff(
-                ID='FAC001',
-                Name='John Doe',
-                E_Mail='john.doe@college.edu',
-                Designation='Professor',
-                password=generate_password_hash('password10')
+        # Create student table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS student (
+                USN VARCHAR(10) PRIMARY KEY,
+                Name VARCHAR(100),
+                E_Mail VARCHAR(100)
             )
-            db.session.add(faculty)
+        """)
 
-        # Add a test student if not exists
-        student = Student.query.filter_by(USN='STU001').first()
-        if not student:
-            student = Student(
-                USN='STU001',
-                Name='Jane Smith',
-                E_Mail='jane.smith@college.edu',
-                password=generate_password_hash('password20')
+        # Create leave_requests table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS leave_requests (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                user_id VARCHAR(10),
+                start_date DATE,
+                end_date DATE,
+                reason TEXT,
+                status VARCHAR(20) DEFAULT 'pending',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
-            db.session.add(student)
+        """)
 
-        try:
-            db.session.commit()
-        except Exception as e:
-            db.session.rollback()
-            print(f"Error initializing database: {e}")
-
-def init_db(app):
-    with app.app_context():
-        db.create_all()
-        # Add initial admin user if it doesn't exist
-        from .models import Staff
-        from .utils import hash_password
-        admin = Staff.query.filter_by(ID='ADMIN001').first()
-        if not admin:
-            admin = Staff(
-                ID='ADMIN001',
-                Name='Admin User',
-                E_Mail='admin@college.edu',
-                Designation='Administrator',
-                password=hash_password('admin123')
-            )
-            db.session.add(admin)
-            db.session.commit()
+        connection.commit()
+        cursor.close()
+        connection.close()
+        print("Database initialized successfully")
+    except Exception as e:
+        print(f"Database initialization error: {str(e)}")
+        raise

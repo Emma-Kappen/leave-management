@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb;
+            color: #111827;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .welcome {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.375rem;
+            background-color: #2563eb;
+            color: white;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background-color 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .button:hover {
+            background-color: #1e40af;
+        }
+        
+        .logout-button {
+            background-color: #ef4444;
+        }
+        
+        .logout-button:hover {
+            background-color: #b91c1c;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background-color: #f9fafb;
+            font-weight: 600;
+        }
+
+        .status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-approved {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-rejected {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #6b7280;
+        }
+
+        .error {
+            color: #ef4444;
+            padding: 1rem;
+            text-align: center;
+            background-color: #fee2e2;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .admin-info {
+            margin-bottom: 1rem;
+        }
+        
+        .admin-info p {
+            margin-bottom: 0.5rem;
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .stat-card {
+            background-color: #f9fafb;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2563eb;
+        }
+        
+        .stat-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .form-input {
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            border: 1px solid #d1d5db;
+            font-size: 0.875rem;
+            color: #111827;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(39, 100, 240, 0.15);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="welcome">Welcome, <span id="adminName">Loading...</span></h1>
+            <div class="header-actions">
+                <div>
+                    <span>ID: </span>
+                    <span id="adminID">Loading...</span>
+                </div>
+                <button class="button logout-button" id="logoutBtn">Logout</button>
+            </div>
+        </header>
+
+        <div id="errorMessage" class="error" style="display: none;"></div>
+
+        <div class="card">
+            <h2 class="card-title">Admin Information</h2>
+            <div class="admin-info" id="adminInfo">
+                <p><strong>Loading...</strong></p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title">Department Statistics</h2>
+            <div id="departmentStats" class="stats-container">
+                <div class="loading">Loading department statistics...</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title">Faculty List</h2>
+            <div id="facultyTableContainer">
+                <div class="loading">Loading faculty data...</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title">All Leave Requests</h2>
+            <div class="filter-controls" style="margin-bottom: 1rem;">
+                <select id="statusFilter" class="form-input" style="width: auto; display: inline-block; margin-right: 0.5rem;">
+                    <option value="all">All Statuses</option>
+                    <option value="pending">Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                </select>
+                <button class="button" style="padding: 0.5rem 1rem;" onclick="applyFilters()">Filter</button>
+                <button class="button" style="padding: 0.5rem 1rem; background-color: #6b7280; margin-left: 0.5rem;" onclick="resetFilters()">Reset</button>
+                <a href="all_leaves.html" class="button" style="padding: 0.5rem 1rem; margin-left: 0.5rem;">View All</a>
+            </div>
+            <div id="leavesTableContainer">
+                <div class="loading">Loading leave requests...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get user_id from cookies or localStorage
+        function getUserId() {
+            // First try to get from cookie
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.startsWith('user_id=')) {
+                    return cookie.substring('user_id='.length, cookie.length);
+                }
+            }
+            
+            // Then try localStorage
+            return localStorage.getItem('user_id');
+        }
+        
+        const userId = getUserId();
+        if (!userId || !userId.startsWith('ADMIN')) {
+            window.location.href = '../login/admin_login.html';
+        }
+        
+        // Logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            // Call the logout API
+            fetch('http://127.0.0.1:5001/auth/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                localStorage.removeItem('user_id');
+                window.location.href = '../login/admin_login.html';
+            })
+            .catch(error => {
+                console.error('Error during logout:', error);
+                localStorage.removeItem('user_id');
+                window.location.href = '../login/admin_login.html';
+            });
+        });
+
+        // Show error message
+        function showError(message) {
+            const errorElement = document.getElementById('errorMessage');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+
+        // Create department statistics
+        function createDepartmentStats(departments) {
+            if (!departments || departments.length === 0) {
+                return '<p>No department data found.</p>';
+            }
+
+            let html = '';
+            departments.forEach(dept => {
+                html += `
+                    <div class="stat-card">
+                        <div class="stat-value">${dept.Student_Count}</div>
+                        <div class="stat-label">${dept.Department}</div>
+                    </div>
+                `;
+            });
+
+            return html;
+        }
+
+        // Create faculty table
+        function createFacultyTable(faculty) {
+            if (!faculty || faculty.length === 0) {
+                return '<p>No faculty found.</p>';
+            }
+
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Designation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            faculty.forEach(f => {
+                html += `
+                    <tr>
+                        <td>${f.ID}</td>
+                        <td>${f.Name}</td>
+                        <td>${f.E_Mail}</td>
+                        <td>${f.Designation}</td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                    </tbody>
+                </table>
+            `;
+
+            return html;
+        }
+
+        // Create leave requests table
+        function createLeavesTable(leaves) {
+            if (!leaves || leaves.length === 0) {
+                return '<p>No leave requests found.</p>';
+            }
+
+            // Apply filters if set
+            const statusFilter = document.getElementById('statusFilter').value;
+            if (statusFilter !== 'all') {
+                leaves = leaves.filter(leave => leave.Approval_Status.toLowerCase() === statusFilter);
+                
+                if (leaves.length === 0) {
+                    return `<p>No ${statusFilter} leave requests found.</p>`;
+                }
+            }
+
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Leave Type</th>
+                            <th>Reason</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            leaves.forEach(leave => {
+                const isPending = leave.Approval_Status.toLowerCase() === 'pending';
+                
+                html += `
+                    <tr data-leave-id="${leave.leave_id}">
+                        <td>${leave.Student_Name} (${leave.Applicant_ID})</td>
+                        <td>${leave.Leave_Type}</td>
+                        <td>${leave.Reason}</td>
+                        <td>${leave.Start_Date}</td>
+                        <td>${leave.End_Date}</td>
+                        <td><span class="status status-${leave.Approval_Status.toLowerCase()}">${leave.Approval_Status}</span></td>
+                        <td>
+                            ${isPending ? 
+                                `<button class="button" style="background-color: #10b981; padding: 0.25rem 0.5rem;" onclick="approveLeave('${leave.leave_id}')">Approve</button>
+                                 <button class="button" style="background-color: #ef4444; padding: 0.25rem 0.5rem; margin-left: 0.25rem;" onclick="rejectLeave('${leave.leave_id}')">Reject</button>` 
+                                : 
+                                `<button class="button" style="background-color: #6b7280; padding: 0.25rem 0.5rem;" onclick="viewDetails('${leave.leave_id}')">View Details</button>`
+                            }
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                    </tbody>
+                </table>
+            `;
+
+            return html;
+        }
+        
+        // Apply filters
+        function applyFilters() {
+            // Refresh the leave requests table with filters
+            const leavesContainer = document.getElementById('leavesTableContainer');
+            leavesContainer.innerHTML = '<div class="loading">Filtering leave requests...</div>';
+            
+            // Re-fetch data to ensure we have the latest
+            fetchAdminData();
+        }
+        
+        // Reset filters
+        function resetFilters() {
+            document.getElementById('statusFilter').value = 'all';
+            applyFilters();
+        }
+        
+        // Approve leave request
+        function approveLeave(leaveId) {
+            updateLeaveStatus(leaveId, 'approved');
+        }
+        
+        // Reject leave request
+        function rejectLeave(leaveId) {
+            updateLeaveStatus(leaveId, 'rejected');
+        }
+        
+        // View leave details
+        function viewDetails(leaveId) {
+            window.location.href = `all_leaves.html?leave_id=${leaveId}`;
+        }
+        
+        // Update leave status
+        function updateLeaveStatus(leaveId, status) {
+            // Show loading state
+            const row = document.querySelector(`tr[data-leave-id="${leaveId}"]`);
+            if (row) {
+                const actionsCell = row.querySelector('td:last-child');
+                actionsCell.innerHTML = '<div class="loading">Processing...</div>';
+            }
+            
+            fetch('http://127.0.0.1:5001/leave/update-status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    leave_id: leaveId,
+                    status: status.toUpperCase(),
+                    faculty_id: userId
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to update leave status');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Refresh the data
+                fetchAdminData();
+                alert(`Leave request ${status} successfully`);
+            })
+            .catch(error => {
+                console.error('Error updating leave status:', error);
+                alert('Failed to update leave status. Please try again.');
+                // Refresh to restore UI
+                fetchAdminData();
+            });
+        }
+
+        // Fetch admin data
+        function fetchAdminData() {
+            fetch(`http://127.0.0.1:5001/admin/${userId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Update admin info
+                    document.getElementById('adminName').textContent = data.admin.Name;
+                    document.getElementById('adminID').textContent = data.admin.ID;
+                    
+                    const adminInfoHtml = `
+                        <p><strong>Name:</strong> ${data.admin.Name}</p>
+                        <p><strong>Email:</strong> ${data.admin.E_Mail}</p>
+                        <p><strong>Designation:</strong> ${data.admin.Designation}</p>
+                    `;
+                    document.getElementById('adminInfo').innerHTML = adminInfoHtml;
+
+                    // Update department statistics
+                    document.getElementById('departmentStats').innerHTML = createDepartmentStats(data.departments);
+
+                    // Update faculty table
+                    document.getElementById('facultyTableContainer').innerHTML = createFacultyTable(data.faculty_list);
+
+                    // Update leave requests table
+                    document.getElementById('leavesTableContainer').innerHTML = createLeavesTable(data.all_leaves);
+                    
+                    // Add action buttons to manage faculty and departments
+                    const adminInfoElement = document.getElementById('adminInfo');
+                    adminInfoElement.innerHTML += `
+                        <div style="margin-top: 1rem;">
+                            <a href="manage_users.html" class="button">Manage Users</a>
+                            <a href="department_view.html" class="button" style="margin-left: 0.5rem;">Manage Departments</a>
+                        </div>
+                    `;
+                })
+                .catch(error => {
+                    console.error('Error fetching admin data:', error);
+                    showError('Failed to load dashboard data. Please try again later.');
+                    
+                    // Set default values
+                    document.getElementById('adminName').textContent = userId;
+                    document.getElementById('adminID').textContent = userId;
+                    document.getElementById('adminInfo').innerHTML = '<p>Could not load admin information.</p>';
+                    document.getElementById('departmentStats').innerHTML = '<p>Could not load department statistics.</p>';
+                    document.getElementById('facultyTableContainer').innerHTML = '<p>Could not load faculty data.</p>';
+                    document.getElementById('leavesTableContainer').innerHTML = '<p>Could not load leave requests.</p>';
+                });
+        }
+        
+        // Initial data fetch
+        fetchAdminData();
+    </script>
+</body>
+</html>

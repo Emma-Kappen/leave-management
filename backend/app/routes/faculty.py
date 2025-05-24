@@ -1,81 +1,52 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
-from ..models import db, Leave, LeaveApprover, Student
-from ..utils import current_user_id, require_role
 from flask_login import login_required, current_user
+from ..db import get_connection
+from datetime import datetime
 
-faculty_bp = Blueprint('faculty', __name__, url_prefix='/faculty')
+faculty_bp = Blueprint('faculty', __name__)
 
 @faculty_bp.before_request
 @login_required
 def restrict_to_faculty():
-    require_role('Faculty')
+    if current_user.user_type != 'staff' or not current_user.data.get('Designation') == 'Professor':
+        return jsonify({'error': 'Access denied'}), 403
 
 @faculty_bp.route('/dashboard')
 @login_required
 def dashboard():
-    require_role('Faculty')
     return render_template('faculty/faculty_dashboard.html')
 
 @faculty_bp.route('/leave-requests', methods=['GET'])
+@login_required
 def leave_requests():
     try:
-        pending_leaves = Leave.query.filter_by(Approval_Status='PENDING').all()
-        leave_data = [
-            {
-                "leave_id": leave.Leave_ID,
-                "student_name": leave.Applicant_ID,  # Replace with actual student name if needed
-                "leave_type": leave.Leave_Type,
-                "subject": "-",  # Replace with actual subject if applicable
-                "start_date": leave.Start_Date.strftime('%Y-%m-%d'),
-                "end_date": leave.End_Date.strftime('%Y-%m-%d'),
-                "reason": leave.Reason,
-                "status": leave.Approval_Status
-            }
-            for leave in pending_leaves
-        ]
-        return jsonify(leave_data), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-@faculty_bp.route('/leave/<int:leave_id>', methods=['GET', 'POST'])
-def view_leave_request(leave_id):
-    leave = Leave.query.get_or_404(leave_id)
-    if request.method == 'POST':
-        action = request.form.get('action')
-        if action in ['APPROVED', 'REJECTED']:
-            leave.Approval_Status = action
-            approver = LeaveApprover(Leave_ID=leave_id, Approver_ID=current_user_id())
-            db.session.add(approver)
-            db.session.commit()
-            flash(f"Leave {action.lower()} successfully.")
-            return redirect(url_for('faculty.leave_requests'))
-    return render_template('faculty/view_request_detail.html', leave=leave)
-
-@faculty_bp.route('/leave-history', methods=['GET'])
-def leave_history():
-    try:
-        # Fetch leave requests processed by the logged-in faculty
-        leave_history = Leave.query.join(LeaveApprover, Leave.Leave_ID == LeaveApprover.Leave_ID) \
-            .filter(LeaveApprover.Approver_ID == current_user.id).all()
+        connection = get_connection()
+        cursor = connection.cursor(dictionary=True)
         
-        history_data = [
-            {
-                "student_name": leave.Applicant_ID,  # Replace with actual student name if needed
-                "leave_type": leave.Leave_Type,
-                "subject": "-",  # Replace with actual subject if applicable
-                "start_date": leave.Start_Date.strftime('%Y-%m-%d'),
-                "end_date": leave.End_Date.strftime('%Y-%m-%d'),
-                "reason": leave.Reason,
-                "status": leave.Approval_Status,
-                "action_taken_on": leave.Submission_Date.strftime('%Y-%m-%d %H:%M:%S')
-            }
-            for leave in leave_history
-        ]
-        return jsonify(history_data), 200
+        # Get all pending leave requests
+        cursor.execute("""
+            SELECT lr.*, 
+                   CASE 
+                       WHEN lr.user_id LIKE 'STU%' THEN s.Name
+                       ELSE st.Name
+                   END as applicant_name
+            FROM leave_requests lr
+            LEFT JOIN student s ON lr.user_id = s.USN
+            LEFT JOIN staff st ON lr.user_id = st.ID
+            WHERE lr.status = 'pending'
+            ORDER BY lr.created_at DESC
+        """)
+        
+        pending_leaves = cursor.fetchall()
+        cursor.close()
+        connection.close()
+        
+        return jsonify(pending_leaves), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 @faculty_bp.route('/leave-requests/<int:leave_id>', methods=['POST'])
+@login_required
 def update_leave_status(leave_id):
     data = request.get_json()
 
@@ -84,17 +55,82 @@ def update_leave_status(leave_id):
         return jsonify({'error': "'status' is required"}), 400
 
     # Validate status value
-    if data['status'] not in ['APPROVED', 'REJECTED']:
-        return jsonify({'error': 'Invalid status. Must be APPROVED or REJECTED.'}), 400
+    if data['status'] not in ['approved', 'rejected']:
+        return jsonify({'error': 'Invalid status. Must be approved or rejected.'}), 400
 
     # Update the leave status
     try:
-        leave = Leave.query.get_or_404(leave_id)
-        leave.Approval_Status = data['status']
-        approver = LeaveApprover(Leave_ID=leave_id, Approver_ID=current_user.id)
-        db.session.add(approver)
-        db.session.commit()
-        return jsonify({'message': f"Leave {data['status'].lower()} successfully."}), 200
+        connection = get_connection()
+        cursor = connection.cursor()
+        
+        # Update leave request status
+        cursor.execute("""
+            UPDATE leave_requests 
+            SET status = %s 
+            WHERE id = %s
+        """, (data['status'], leave_id))
+        
+        # Record the approver
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS leave_approvers (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                leave_id INT,
+                approver_id VARCHAR(10),
+                approval_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        
+        cursor.execute("""
+            INSERT INTO leave_approvers 
+            (leave_id, approver_id) 
+            VALUES (%s, %s)
+        """, (leave_id, current_user.id))
+        
+        connection.commit()
+        cursor.close()
+        connection.close()
+        
+        return jsonify({'message': f"Leave {data['status']} successfully."}), 200
     except Exception as e:
-        db.session.rollback()
         return jsonify({'error': str(e)}), 500
+
+@faculty_bp.route('/leave-history', methods=['GET'])
+@login_required
+def leave_history():
+    try:
+        connection = get_connection()
+        cursor = connection.cursor(dictionary=True)
+        
+        # Create leave_approvers table if it doesn't exist
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS leave_approvers (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                leave_id INT,
+                approver_id VARCHAR(10),
+                approval_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        
+        # Get all leave requests processed by this faculty
+        cursor.execute("""
+            SELECT lr.*, 
+                   CASE 
+                       WHEN lr.user_id LIKE 'STU%' THEN s.Name
+                       ELSE st.Name
+                   END as applicant_name,
+                   la.approval_date
+            FROM leave_requests lr
+            JOIN leave_approvers la ON lr.id = la.leave_id
+            LEFT JOIN student s ON lr.user_id = s.USN
+            LEFT JOIN staff st ON lr.user_id = st.ID
+            WHERE la.approver_id = %s
+            ORDER BY la.approval_date DESC
+        """, (current_user.id,))
+        
+        history = cursor.fetchall()
+        cursor.close()
+        connection.close()
+        
+        return jsonify(history), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
