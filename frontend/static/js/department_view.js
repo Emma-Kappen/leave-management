@@ -1,14 +1,24 @@
 document.addEventListener('DOMContentLoaded', () => {
     const departmentListContainer = document.querySelector('.department-list');
     const noDepartmentsMessage = document.querySelector('.no-departments-message');
+    const backButton = document.querySelector('.back-button');
+
+    // Update back button href to point to the correct admin dashboard
+    if (backButton) {
+        backButton.href = '/admin/dashboard';
+    }
 
     // Function to fetch departments and users from the backend
     async function fetchDepartmentsAndUsers() {
         try {
-            const response = await fetch('/admin/departments-users'); // Ensure this matches the backend route
+            const response = await fetch('/admin/departments-users', {
+                credentials: 'include'
+            });
+            
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
+            
             const data = await response.json();
             return data;
         } catch (error) {

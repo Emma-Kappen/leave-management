@@ -1,3 +1,18 @@
+from flask import Flask, request, jsonify
+import traceback
+from backend.app.db import get_connection
+from flask_cors import CORS
+
+app = Flask(__name__)
+CORS(app, supports_credentials=True, resources={r"/*": {"origins": "*"}})
+
+def handle_preflight():
+    response = jsonify({'message': 'Preflight request successful'})
+    response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+    response.headers.add('Access-Control-Allow-Credentials', 'true')
+    return response
+
 # API endpoints for user management
 @app.route('/admin/users/<user_id>', methods=['DELETE', 'OPTIONS'])
 def delete_user(user_id):
@@ -188,3 +203,64 @@ def update_user(user_id):
         print(f"Error updating user: {str(e)}")
         print(traceback.format_exc())
         return jsonify({'error': str(e)}), 500
+
+@app.route('/admin/departments-users', methods=['GET', 'OPTIONS'])
+def get_departments_users():
+    if request.method == 'OPTIONS':
+        return handle_preflight()
+        
+    try:
+        conn = get_connection()
+        cursor = conn.cursor(dictionary=True)
+        
+        # Get all departments
+        cursor.execute("""
+            SELECT d.ID, d.Name 
+            FROM Department d
+            ORDER BY d.Name
+        """)
+        departments = cursor.fetchall()
+        
+        result = []
+        
+        for dept in departments:
+            dept_data = {
+                'id': dept['ID'],
+                'name': dept['Name'],
+                'users': []
+            }
+            
+            # Get students in this department
+            cursor.execute("""
+                SELECT s.USN as id, s.Name as name, 'Student' as role
+                FROM Student s
+                WHERE s.Dept_ID = %s
+                ORDER BY s.Name
+            """, (dept['ID'],))
+            students = cursor.fetchall()
+            dept_data['users'].extend(students)
+            
+            # Get faculty in this department
+            cursor.execute("""
+                SELECT st.ID as id, st.Name as name, st.Designation as role
+                FROM Staff st
+                WHERE st.Designation = %s
+                ORDER BY st.Name
+            """, (dept['Name'],))
+            faculty = cursor.fetchall()
+            dept_data['users'].extend(faculty)
+            
+            result.append(dept_data)
+        
+        cursor.close()
+        conn.close()
+        
+        return jsonify(result), 200
+        
+    except Exception as e:
+        print(f"Error fetching departments and users: {str(e)}")
+        print(traceback.format_exc())
+        return jsonify({'error': str(e)}), 500
+
+if __name__ == '__main__':
+    app.run(debug=True, port=5002)

@@ -8,15 +8,114 @@ import os
 admin_bp = Blueprint('admin', __name__)
 
 @admin_bp.before_request
-@login_required
 def restrict_to_admins():
-    if current_user.user_type != 'staff' or not current_user.data.get('Designation') == 'Administrator':
+    # Skip auth check for dashboard-data endpoint
+    if request.endpoint == 'admin.admin_dashboard_data':
+        return
+        
+    # For other endpoints, check if user is logged in and is admin
+    user_id = request.cookies.get('user_id')
+    if not user_id or not user_id.startswith('ADMIN'):
         return jsonify({'error': 'Access denied'}), 403
 
 @admin_bp.route('/dashboard', methods=['GET'])
 @login_required
 def admin_dashboard():
     return render_template('/admin/admin_dashboard.html')
+
+@admin_bp.route('/dashboard-data', methods=['GET'])
+def admin_dashboard_data():
+    try:
+        # Get user_id from cookie or request
+        user_id = request.cookies.get('user_id')
+        if not user_id:
+            # Try to get from query params
+            user_id = request.args.get('user_id')
+            
+        if not user_id or not user_id.startswith('ADMIN'):
+            return jsonify({'error': 'Unauthorized access'}), 403
+            
+        connection = get_connection()
+        cursor = connection.cursor(dictionary=True)
+        
+        # Get admin info
+        cursor.execute("SELECT * FROM staff WHERE ID = %s", (user_id,))
+        admin_info = cursor.fetchone()
+        
+        if not admin_info:
+            # Create admin user if it doesn't exist
+            cursor.execute(
+                "INSERT INTO staff (ID, Name, E_Mail, Designation) VALUES (%s, %s, %s, %s)",
+                (user_id, "Admin User", "admin@example.com", "Administrator")
+            )
+            connection.commit()
+            
+            # Fetch the newly created admin
+            cursor.execute("SELECT * FROM staff WHERE ID = %s", (user_id,))
+            admin_info = cursor.fetchone()
+        
+        # Ensure we have at least one department
+        cursor.execute("SELECT COUNT(*) as count FROM Department")
+        dept_count = cursor.fetchone()['count']
+        
+        if dept_count == 0:
+            # Insert sample departments
+            departments = [
+                ("Computer Science", "FAC001"),
+                ("Electrical Engineering", "FAC002"),
+                ("Mechanical Engineering", "FAC003")
+            ]
+            for dept in departments:
+                cursor.execute(
+                    "INSERT INTO Department (Name, HOD) VALUES (%s, %s)",
+                    dept
+                )
+            connection.commit()
+        
+        # Get department statistics
+        cursor.execute("""
+            SELECT d.Name AS Department, COUNT(s.USN) AS Student_Count
+            FROM Department d
+            LEFT JOIN Student s ON d.ID = s.Dept_ID
+            GROUP BY d.Name
+            ORDER BY d.Name
+        """)
+        departments = cursor.fetchall()
+        
+        # Get faculty list
+        cursor.execute("""
+            SELECT * FROM staff 
+            WHERE Designation != 'Administrator'
+            ORDER BY Name
+        """)
+        faculty_list = cursor.fetchall()
+        
+        # Get all leave requests
+        cursor.execute("""
+            SELECT lr.*, 
+                   CASE 
+                       WHEN lr.user_id LIKE 'STU%' THEN s.Name
+                       ELSE st.Name
+                   END as applicant_name
+            FROM leave_requests lr
+            LEFT JOIN student s ON lr.user_id = s.USN
+            LEFT JOIN staff st ON lr.user_id = st.ID
+            ORDER BY lr.created_at DESC
+        """)
+        all_leaves = cursor.fetchall()
+        
+        cursor.close()
+        connection.close()
+        
+        return jsonify({
+            'admin': admin_info,
+            'departments': departments,
+            'faculty_list': faculty_list,
+            'all_leaves': all_leaves
+        }), 200
+    except Exception as e:
+        print(f"Error in dashboard data: {str(e)}")
+        return jsonify({'error': str(e)}), 500
 
 @admin_bp.route('/users', methods=['GET'])
 @login_required
@@ -260,3 +359,35 @@ def get_all_leaves():
         return jsonify(leaves), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+        
+@admin_bp.route('/leaves/update-status', methods=['POST'])
+@login_required
+def update_leave_status():
+    try:
+        data = request.get_json()
+        
+        if not data or 'leave_id' not in data or 'status' not in data:
+            return jsonify({'error': 'Missing required fields'}), 400
+            
+        leave_id = data['leave_id']
+        status = data['status'].lower()
+        
+        if status not in ['approved', 'rejected', 'pending']:
+            return jsonify({'error': 'Invalid status value'}), 400
+            
+        connection = get_connection()
+        cursor = connection.cursor()
+        
+        cursor.execute("""
+            UPDATE leave_requests
+            SET status = %s
+            WHERE id = %s
+        """, (status, leave_id))
+        
+        connection.commit()
+        cursor.close()
+        connection.close()
+        
+        return jsonify({'message': f'Leave status updated to {status}'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500

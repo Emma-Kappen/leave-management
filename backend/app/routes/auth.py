@@ -27,6 +27,51 @@ def login():
         user_id = data['user_id']
         password = data['password']
         
+        # For admin login with default credentials
+        if user_id == 'ADMIN001' and password == 'admin123':
+            # Check if admin exists in database
+            try:
+                connection = get_connection()
+                cursor = connection.cursor(dictionary=True)
+                
+                cursor.execute("SELECT * FROM staff WHERE ID = %s", (user_id,))
+                user_data = cursor.fetchone()
+                
+                # If admin doesn't exist, create it
+                if not user_data:
+                    cursor.execute(
+                        "INSERT INTO staff (ID, Name, E_Mail, Designation) VALUES (%s, %s, %s, %s)",
+                        (user_id, "Admin User", "admin@example.com", "Administrator")
+                    )
+                    connection.commit()
+                    
+                    # Fetch the newly created admin
+                    cursor.execute("SELECT * FROM staff WHERE ID = %s", (user_id,))
+                    user_data = cursor.fetchone()
+                
+                cursor.close()
+                connection.close()
+                
+                # Create user and login
+                from .. import User
+                user = User(user_id, 'staff', user_data)
+                login_user(user)
+                
+                # Set cookie for user_id
+                response = jsonify({
+                    'message': 'Admin login successful',
+                    'role': 'Admin',
+                    'redirect': '/admin/dashboard',
+                    'user_id': user_id
+                })
+                response.set_cookie('user_id', user_id, max_age=86400, httponly=False)
+                return response, 200
+                
+            except Exception as e:
+                print(f"Error during admin login: {str(e)}")
+                return jsonify({'error': 'Database error during login'}), 500
+        
+        # Regular login flow
         # Get stored password
         stored_password = get_user_password(user_id)
         if not stored_password:
@@ -58,11 +103,16 @@ def login():
             from .. import User
             user = User(user_id, role.lower(), user_data)
             login_user(user)
-            return jsonify({
+            
+            # Set cookie for user_id
+            response = jsonify({
                 'message': f'{role} login successful',
                 'role': role,
-                'redirect': redirect_url
-            }), 200
+                'redirect': redirect_url,
+                'user_id': user_id
+            })
+            response.set_cookie('user_id', user_id, max_age=86400, httponly=False)
+            return response, 200
         
         return jsonify({'error': 'User not found in database'}), 401
 
