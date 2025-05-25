@@ -1,13 +1,20 @@
-from flask import Blueprint, request, jsonify, render_template, redirect
+from flask import Blueprint, request, jsonify, render_template, redirect, url_for
 from flask_login import login_user, logout_user, login_required, current_user
 from ..models import Student, Staff
-from ..utils import verify_password
-from ..db import db
+import traceback
 
 auth_bp = Blueprint('auth', __name__)
 
-@auth_bp.route('/login', methods=['POST'])
+@auth_bp.route('/login', methods=['POST', 'OPTIONS'])
 def login():
+    if request.method == 'OPTIONS':
+        response = jsonify({'status': 'ok'})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+        response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
+        response.headers.add('Access-Control-Allow-Credentials', 'true')
+        return response
+        
     try:
         data = request.get_json()
         if not data or 'user_id' not in data or 'password' not in data:
@@ -15,48 +22,111 @@ def login():
 
         user_id = data['user_id']
         password = data['password']
-
-        # Try to find the user as a student
-        user = Student.query.filter_by(USN=user_id).first()
-        role = 'Student'
-        redirect_url = '/student/dashboard'
         
-        # If not found as student, try as faculty
-        if not user:
-            user = Staff.query.filter_by(ID=user_id).first()
-            role = 'Faculty'
-            redirect_url = '/faculty/dashboard'
-
-        if user and verify_password(password, user.password):
-            login_user(user)
-            return jsonify({
-                'message': f'{role} login successful',
-                'role': role,
-                'redirect': redirect_url
-            }), 200
+        # Debug output
+        print(f"Login attempt: user_id={user_id}, password={'*' * len(password)}")
         
+        # Check if user exists in database
+        if user_id.startswith(('S')):
+            # Faculty login
+            user = Staff.get_by_id(user_id)
+            if user and user.verify_password(password):
+                login_user(user)
+                role = user.role
+                redirect_url = f'/{role}/dashboard'
+                
+                response = jsonify({
+                    'message': f'{role} login successful',
+                    'role': role,
+                    'redirect': redirect_url,
+                    'user_id': user_id
+                })
+                response.headers.add('Access-Control-Allow-Origin', '*')
+                response.headers.add('Access-Control-Allow-Credentials', 'true')
+                response.set_cookie('user_id', user_id, max_age=86400, httponly=False)
+                return response, 200
+        else:
+            # Student login
+            user = Student.get_by_id(user_id)
+            if user and user.verify_password(password):
+                login_user(user)
+                role = 'student'
+                redirect_url = '/student/dashboard'
+                
+                response = jsonify({
+                    'message': 'Student login successful',
+                    'role': role,
+                    'redirect': redirect_url,
+                    'user_id': user_id
+                })
+                response.headers.add('Access-Control-Allow-Origin', '*')
+                response.headers.add('Access-Control-Allow-Credentials', 'true')
+                response.set_cookie('user_id', user_id, max_age=86400, httponly=False)
+                return response, 200
+        
+        # If we get here, authentication failed
         return jsonify({'error': 'Invalid credentials'}), 401
+
     except Exception as e:
-        print(f"Login error: {str(e)}")  # Log the error
+        print(f"Login error: {str(e)}")
+        traceback.print_exc()
         return jsonify({'error': 'An error occurred during login. Please try again.'}), 500
 
-@auth_bp.route('/logout', methods=['GET', 'POST'])
-@login_required
+@auth_bp.route('/logout', methods=['GET', 'POST', 'OPTIONS'])
 def logout():
-    logout_user()
-    return jsonify({'message': 'Logged out successfully'}), 200
+    if request.method == 'OPTIONS':
+        response = jsonify({'status': 'ok'})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+        response.headers.add('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        response.headers.add('Access-Control-Allow-Credentials', 'true')
+        return response
+        
+    try:
+        logout_user()
+    except Exception as e:
+        print(f"Logout error: {str(e)}")
+    
+    response = jsonify({'message': 'Logged out successfully'})
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Credentials', 'true')
+    response.delete_cookie('user_id')
+    return response, 200
 
-@auth_bp.route('/check-auth', methods=['GET'])
+@auth_bp.route('/check-auth', methods=['GET', 'OPTIONS'])
 def check_auth():
+    if request.method == 'OPTIONS':
+        response = jsonify({'status': 'ok'})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+        response.headers.add('Access-Control-Allow-Methods', 'GET, OPTIONS')
+        response.headers.add('Access-Control-Allow-Credentials', 'true')
+        return response
+        
     if current_user.is_authenticated:
-        role = 'Student' if hasattr(current_user, 'USN') else 'Faculty'
-        return jsonify({
+        response = jsonify({
             'authenticated': True,
-            'role': role,
-            'redirect': f'/{role.lower()}/dashboard'
+            'role': current_user.role,
+            'redirect': f'/{current_user.role}/dashboard',
+            'user_id': current_user.get_id()
         })
-    return jsonify({'authenticated': False}), 401
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Credentials', 'true')
+        return response, 200
+        
+    response = jsonify({'authenticated': False})
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Credentials', 'true')
+    return response, 401
 
 @auth_bp.route('/student-login', methods=['GET'])
 def student_login():
-    return render_template('/frontend/templates/login/student_login.html')
+    return render_template('login/student_login.html')
+
+@auth_bp.route('/faculty-login', methods=['GET'])
+def faculty_login():
+    return render_template('login/faculty_login.html')
+
+@auth_bp.route('/admin-login', methods=['GET'])
+def admin_login():
+    return render_template('login/admin_login.html')

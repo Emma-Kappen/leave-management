@@ -1,70 +1,83 @@
-from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash
+import mysql.connector
+from mysql.connector import pooling
+import os
 
-db = SQLAlchemy()
+# Database configuration
+DB_CONFIG = {
+    'host': 'localhost',
+    'user': 'root',
+    'password': 'bmsit_AI.049',
+    'database': 'college_leave_mgmt'
+}
 
-def init_db(app):
-    with app.app_context():
-        db.create_all()
+# Create a connection pool
+connection_pool = None
 
-        # Import models here to avoid circular imports
-        from .models import Staff, Student
+def init_db():
+    """Initialize the database connection pool."""
+    global connection_pool
+    try:
+        connection_pool = pooling.MySQLConnectionPool(
+            pool_name="leave_management_pool",
+            pool_size=5,
+            **DB_CONFIG
+        )
+        print("Database connection pool created successfully")
+        return True
+    except Exception as e:
+        print(f"Error creating database connection pool: {str(e)}")
+        return False
 
-        # Check if admin user exists, if not create one
-        admin = Staff.query.filter_by(ID='ADMIN001').first()
-        if not admin:
-            admin = Staff(
-                ID='ADMIN001',
-                Name='Admin User',
-                E_Mail='admin@college.edu',
-                Designation='Administrator',
-                password=generate_password_hash('admin123')
-            )
-            db.session.add(admin)
+def get_connection():
+    """Get a connection from the pool."""
+    if connection_pool:
+        return connection_pool.get_connection()
+    else:
+        raise Exception("Database connection pool not initialized")
 
-        # Add a test faculty member if not exists
-        faculty = Staff.query.filter_by(ID='FAC001').first()
-        if not faculty:
-            faculty = Staff(
-                ID='FAC001',
-                Name='John Doe',
-                E_Mail='john.doe@college.edu',
-                Designation='Professor',
-                password=generate_password_hash('password10')
-            )
-            db.session.add(faculty)
+def execute_query(query, params=None, fetch=True):
+    """Execute a query and return results if needed."""
+    connection = None
+    cursor = None
+    try:
+        connection = get_connection()
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute(query, params or ())
+        
+        if fetch:
+            result = cursor.fetchall()
+            return result
+        else:
+            connection.commit()
+            return cursor.lastrowid
+    except Exception as e:
+        if connection:
+            connection.rollback()
+        print(f"Database error: {str(e)}")
+        raise
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
 
-        # Add a test student if not exists
-        student = Student.query.filter_by(USN='STU001').first()
-        if not student:
-            student = Student(
-                USN='STU001',
-                Name='Jane Smith',
-                E_Mail='jane.smith@college.edu',
-                password=generate_password_hash('password20')
-            )
-            db.session.add(student)
-
-        try:
-            db.session.commit()
-        except Exception as e:
-            db.session.rollback()
-            print(f"Error initializing database: {e}")
-
-def init_db(app):
-    with app.app_context():
-        db.create_all()
-        # Add initial admin user if it doesn't exist
-        from .models import Staff
-        from .utils import hash_password
-        admin = Staff.query.filter_by(ID='ADMIN001').first()
-        if not admin:
-            admin = Staff(
-                ID='ADMIN001',
-                Name='Admin User',
-                E_Mail='admin@college.edu',
-                Designation='Administrator',
-                password=hash_password('admin123')
-            )
-            db.session.add(admin)
-            db.session.commit()
+def execute_many(query, params_list):
+    """Execute a query with multiple parameter sets."""
+    connection = None
+    cursor = None
+    try:
+        connection = get_connection()
+        cursor = connection.cursor()
+        cursor.executemany(query, params_list)
+        connection.commit()
+        return cursor.lastrowid
+    except Exception as e:
+        if connection:
+            connection.rollback()
+        print(f"Database error: {str(e)}")
+        raise
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
