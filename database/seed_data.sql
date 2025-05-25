@@ -1,78 +1,77 @@
--- Department
-INSERT INTO Department (ID, Name) VALUES
+-- Departments
+INSERT INTO Department (Dept_ID, Dept_Name) VALUES
 (1, 'Computer Science'),
 (2, 'Electronics'),
-(3, 'Mechanical'),
-(4, 'Civil'),
-(5, 'Electrical');
+(3, 'Mechanical');
 
--- Staff
-INSERT INTO Staff (ID, Name, E_Mail, Designation, Supervisor_ID, Password) VALUES
-('S001', 'Dr. Alice Rao', 'alice.rao@example.com', 'Professor', NULL, 'alice123'),
-('S002', 'Mr. Bob Smith', 'bob.smith@example.com', 'Assistant Professor', 'S001', 'bob123'),
-('S003', 'Ms. Clara John', 'clara.john@example.com', 'Lecturer', 'S001', 'clara123'),
-('S004', 'Dr. David White', 'david.white@example.com', 'Professor', NULL, 'david123'),
-('S005', 'Ms. Eva Green', 'eva.green@example.com', 'Lecturer', 'S004', 'eva123');
-
--- Student
-INSERT INTO Student (USN, Name, E_Mail, Join_Date, Dept_ID, Password) VALUES
-('CS001', 'John Doe', 'john.doe@example.com', '2022-08-01', 1, 'john123'),
-('CS002', 'Jane Smith', 'jane.smith@example.com', '2022-08-01', 1, 'jane123'),
-('CS003', 'Tom Brown', 'tom.brown@example.com', '2022-08-01', 1, 'tom123'),
-('EC001', 'Sara Khan', 'sara.khan@example.com', '2022-08-01', 2, 'sara123'),
-('EC002', 'Ali Patel', 'ali.patel@example.com', '2022-08-01', 2, 'ali123'),
-('ME001', 'Mike Lee', 'mike.lee@example.com', '2022-08-01', 3, 'mike123'),
-('ME002', 'Nina Roy', 'nina.roy@example.com', '2022-08-01', 3, 'nina123'),
-('CV001', 'George Mathew', 'george.mathew@example.com', '2022-08-01', 4, 'george123'),
-('CV002', 'Rita Paul', 'rita.paul@example.com', '2022-08-01', 4, 'rita123'),
-('EE001', 'Sam Wilson', 'sam.wilson@example.com', '2022-08-01', 5, 'sam123');
+-- Staff (Faculty)
+INSERT INTO Staff (Staff_ID, Name, E_Mail, Password, Dept_ID) VALUES
+(1, 'Dr. Anil Kumar', 'anil.kumar@college.edu', 'pass123', 1),
+(2, 'Dr. Meena Reddy', 'meena.reddy@college.edu', 'pass123', 1),
+(3, 'Mr. Rajiv Sharma', 'rajiv.sharma@college.edu', 'pass123', 2),
+(4, 'Ms. Kavita Iyer', 'kavita.iyer@college.edu', 'pass123', 2),
+(5, 'Mr. Arjun Nair', 'arjun.nair@college.edu', 'pass123', 3);
 
 -- Admin
-INSERT INTO Admin (ID, Name, E_Mail, Password) VALUES
-(1, 'System Admin', 'admin@example.com', 'admin123');
+INSERT INTO Admin (Admin_ID, Name, E_Mail, Password) VALUES
+(1, 'Principal Raghavan', 'principal@college.edu', 'adminpass');
 
--- Subject
-INSERT INTO Subject (Code, Title, Dept_ID, Semester) VALUES
-('CS101', 'Data Structures', 1, 3),
-('CS102', 'Algorithms', 1, 4),
-('EC101', 'Digital Circuits', 2, 3),
-('ME101', 'Thermodynamics', 3, 3),
-('CV101', 'Structural Analysis', 4, 4),
-('EE101', 'Power Systems', 5, 4);
+-- Subjects
+INSERT INTO Subject (Subject_Code, Subject_Name, Dept_ID) VALUES
+('CS101', 'Data Structures', 1),
+('CS102', 'Database Systems', 1),
+('EC101', 'Digital Electronics', 2),
+('ME101', 'Thermodynamics', 3),
+('CS103', 'Operating Systems', 1);
 
--- Attendance
-INSERT INTO Attendance (USN, Subject_Code, Classes_Taken, Classes_Attended) VALUES
-('CS001', 'CS101', 40, 35),
-('CS002', 'CS101', 40, 38),
-('CS003', 'CS101', 40, 37),
-('EC001', 'EC101', 40, 34),
-('EC002', 'EC101', 40, 36),
-('ME001', 'ME101', 40, 39),
-('ME002', 'ME101', 40, 30),
-('CV001', 'CV101', 40, 32),
-('CV002', 'CV101', 40, 34),
-('EE001', 'EE101', 40, 31);
+-- Students
+INSERT INTO Student (USN, Name, E_Mail, Password, Dept_ID) VALUES
+('1RV21CS001', 'Aarav Patel', 'aarav.patel@college.edu', 'stud123', 1),
+('1RV21CS002', 'Isha Rani', 'isha.rani@college.edu', 'stud123', 1),
+('1RV21CS003', 'Rohan Mehta', 'rohan.mehta@college.edu', 'stud123', 1),
+('1RV21CS004', 'Sneha Singh', 'sneha.singh@college.edu', 'stud123', 1),
+('1RV21CS005', 'Vikram Joshi', 'vikram.joshi@college.edu', 'stud123', 1),
+('1RV21CS006', 'Neha Verma', 'neha.verma@college.edu', 'stud123', 1),
+('1RV21CS007', 'Kabir Das', 'kabir.das@college.edu', 'stud123', 1),
+('1RV21CS008', 'Tanya Roy', 'tanya.roy@college.edu', 'stud123', 1),
+('1RV21CS009', 'Aditya Rao', 'aditya.rao@college.edu', 'stud123', 1),
+('1RV21CS010', 'Pooja Shetty', 'pooja.shetty@college.edu', 'stud123', 1),
+('1RV21EC011', 'Sahil Jain', 'sahil.jain@college.edu', 'stud123', 2),
+('1RV21EC012', 'Ritika Paul', 'ritika.paul@college.edu', 'stud123', 2),
+('1RV21EC013', 'Anjali Das', 'anjali.das@college.edu', 'stud123', 2),
+('1RV21EC014', 'Manav Kapoor', 'manav.kapoor@college.edu', 'stud123', 2),
+('1RV21EC015', 'Divya Bhatt', 'divya.bhatt@college.edu', 'stud123', 2),
+('1RV21ME016', 'Ramesh Gowda', 'ramesh.gowda@college.edu', 'stud123', 3),
+('1RV21ME017', 'Sowmya Hegde', 'sowmya.hegde@college.edu', 'stud123', 3),
+('1RV21ME018', 'Nikhil Menon', 'nikhil.menon@college.edu', 'stud123', 3),
+('1RV21ME019', 'Lavanya Rao', 'lavanya.rao@college.edu', 'stud123', 3),
+('1RV21ME020', 'Harish Nayak', 'harish.nayak@college.edu', 'stud123', 3);
 
--- Teaches
-INSERT INTO Teaches (ID, USN, Subject_Code) VALUES
-('S001', 'CS001', 'CS101'),
-('S001', 'CS002', 'CS101'),
-('S001', 'CS003', 'CS101'),
-('S002', 'EC001', 'EC101'),
-('S002', 'EC002', 'EC101'),
-('S003', 'ME001', 'ME101'),
-('S003', 'ME002', 'ME101'),
-('S004', 'CV001', 'CV101'),
-('S004', 'CV002', 'CV101'),
-('S005', 'EE001', 'EE101');
+-- Teaches (Faculty assigned to Subjects)
+INSERT INTO Teaches (Staff_ID, Subject_Code) VALUES
+(1, 'CS101'), (1, 'CS102'),
+(2, 'CS102'), (2, 'CS103'),
+(3, 'EC101'),
+(4, 'ME101'),
+(5, 'CS103');
 
--- Leave
-INSERT INTO `Leave` (Leave_ID, Applicant_ID, Leave_Type, Reason, Start_Date, End_Date, Submission_Date, Approval_Status) VALUES
-(1, 'CS001', 'SICK', 'Fever and cold', '2025-05-20', '2025-05-22', '2025-05-19 10:30:00', 'PENDING'),
-(2, 'EC002', 'CASUAL', 'Family function', '2025-05-23', '2025-05-24', '2025-05-20 14:00:00', 'APPROVED'),
-(3, 'ME002', 'OTHER', 'Project work', '2025-05-25', '2025-05-26', '2025-05-21 09:00:00', 'REJECTED');
+-- Attendance records
+INSERT INTO Attendance (Attendance_ID, USN, Subject_Code, Date, Status) VALUES
+(1, '1RV21CS001', 'CS101', '2024-01-15', 'Present'),
+(2, '1RV21CS001', 'CS102', '2024-01-15', 'Present'),
+(3, '1RV21CS002', 'CS101', '2024-01-15', 'Present'),
+(4, '1RV21CS002', 'CS102', '2024-01-15', 'Absent'),
+(5, '1RV21CS003', 'CS101', '2024-01-15', 'Present'),
+(6, '1RV21CS003', 'CS102', '2024-01-15', 'Present');
 
--- Leave Approver
-INSERT INTO Leave_Approver (Leave_ID, Approver_ID, Decision_Date) VALUES
-(2, 'S002', '2025-05-21 16:00:00'),
-(3, 'S003', '2025-05-22 12:30:00');
+-- Leave Requests
+INSERT INTO Leave_Request (Leave_ID, USN, Subject_Code, Leave_Type, Start_Date, End_Date, Status, Submission_Date) VALUES
+(1, '1RV21CS001', 'CS101', 'Sick', '2024-02-10', '2024-02-12', 'Approved', '2024-02-09 08:30:00'),
+(2, '1RV21CS002', 'CS102', 'Personal', '2024-02-15', '2024-02-16', 'Pending', '2024-02-12 10:00:00'),
+(3, '1RV21EC011', 'EC101', 'Event', '2024-02-20', '2024-02-21', 'Approved', '2024-02-18 09:15:00');
+
+-- Leave Approver Entries
+INSERT INTO Leave_Approver (Approver_ID, Staff_ID, Leave_ID, Approval_Status, Approval_Date) VALUES
+(1, 1, 1, 'Approved', '2024-02-09 15:00:00'),
+(2, 2, 2, 'Pending', NULL),
+(3, 3, 3, 'Approved', '2024-02-19 14:00:00');

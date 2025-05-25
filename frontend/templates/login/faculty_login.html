@@ -132,6 +132,7 @@
             <button type="submit" class="login-button" id="login-button">Login</button>
         </form>
         <div id="login-error" class="error-message text-center"></div>
+        <a href="/" class="back-link" style="display: block; text-align: center; margin-top: 1rem; color: #4b5563; text-decoration: none; font-size: 0.875rem;">Back to Home</a>
     </div>
     <script>
         const loginForm = document.getElementById('login-form');
@@ -174,7 +175,11 @@
                 return;
             }
 
-            // No need to validate faculty ID format as it can start with F or FAC
+            // Validate faculty ID format
+            if (!facultyId.startsWith('F') && !facultyId.startsWith('FAC')) {
+                facultyIdError.textContent = 'Faculty ID should start with F or FAC';
+                return;
+            }
 
             try {
                 setLoading(true);

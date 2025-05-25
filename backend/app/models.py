@@ -1,6 +1,7 @@
 from flask_login import UserMixin
 from datetime import datetime
 from .db import execute_query
+from .utils import verify_password
 
 class Student(UserMixin):
     """Student model for authentication and data access."""
@@ -30,10 +31,26 @@ class Student(UserMixin):
             )
         return None
     
+    @staticmethod
+    def get_by_email(email):
+        """Get student by email."""
+        query = "SELECT * FROM Student WHERE E_Mail = %s"
+        result = execute_query(query, (email,))
+        if result:
+            student_data = result[0]
+            return Student(
+                usn=student_data['USN'],
+                name=student_data['Name'],
+                email=student_data['E_Mail'],
+                dept_id=student_data['Dept_ID'],
+                password=student_data['Password'],
+                join_date=student_data['Join_Date']
+            )
+        return None
+    
     def verify_password(self, password):
         """Verify the password."""
-        # For simplicity, direct comparison (in production, use hashed passwords)
-        return self.Password == password
+        return verify_password(self.Password, password)
     
     def get_id(self):
         """Return the user ID for Flask-Login."""
@@ -131,10 +148,26 @@ class Staff(UserMixin):
             )
         return None
     
+    @staticmethod
+    def get_by_email(email):
+        """Get staff by email."""
+        query = "SELECT * FROM Staff WHERE E_Mail = %s"
+        result = execute_query(query, (email,))
+        if result:
+            staff_data = result[0]
+            return Staff(
+                id=staff_data['ID'],
+                name=staff_data['Name'],
+                email=staff_data['E_Mail'],
+                designation=staff_data['Designation'],
+                password=staff_data['Password'],
+                supervisor_id=staff_data['Supervisor_ID']
+            )
+        return None
+    
     def verify_password(self, password):
         """Verify the password."""
-        # For simplicity, direct comparison (in production, use hashed passwords)
-        return self.Password == password
+        return verify_password(self.Password, password)
     
     def get_id(self):
         """Return the user ID for Flask-Login."""

@@ -2,6 +2,8 @@ from flask import Blueprint, request, jsonify, render_template, redirect, url_fo
 from flask_login import login_user, logout_user, login_required, current_user
 from ..models import Student, Staff
 from ..db import execute_query
+from .admin import Admin
+from ..utils import verify_password
 import traceback
 
 auth_bp = Blueprint('auth', __name__)
@@ -28,15 +30,13 @@ def login():
         print(f"Login attempt: user_id={user_id}, password={'*' * len(password)}")
         
         # Check if user exists in database
-        if user_id.startswith(('S', 'FAC', 'F')):
+        if user_id.startswith(('F', 'S')):  # Faculty IDs start with F or S
             # Faculty login
             query = "SELECT * FROM Staff WHERE ID = %s"
             result = execute_query(query, (user_id,))
             
-            if result and result[0]['Password'] == password:
-                # Determine role based on designation
+            if result:
                 staff_data = result[0]
-                role = 'admin' if staff_data['Designation'] == 'Administrator' else 'faculty'
                 
                 # Create user object
                 user = Staff(
@@ -47,40 +47,30 @@ def login():
                     password=staff_data['Password']
                 )
                 
-                login_user(user)
-                redirect_url = f'/{role}/dashboard'
-                
-                response = jsonify({
-                    'message': f'{role} login successful',
-                    'role': role,
-                    'redirect': redirect_url,
-                    'user_id': user_id
-                })
-                response.headers.add('Access-Control-Allow-Origin', '*')
-                response.headers.add('Access-Control-Allow-Credentials', 'true')
-                response.set_cookie('user_id', user_id, max_age=86400, httponly=False)
-                return response, 200
-            else:
-                # Authentication failed - either user not found or password incorrect
-                return jsonify({'error': 'Invalid faculty ID or password'}), 401
-        else:
-            # Student login
-            query = "SELECT * FROM Student WHERE USN = %s"
-            result = execute_query(query, (user_id,))
+                if user.verify_password(password):
+                    login_user(user)
+                    role = 'faculty'
+                    redirect_url = '/faculty/dashboard'
+                    
+                    response = jsonify({
+                        'message': 'Faculty login successful',
+                        'role': role,
+                        'redirect': redirect_url,
+                        'user_id': user_id
+                    })
+                    response.headers.add('Access-Control-Allow-Origin', '*')
+                    response.headers.add('Access-Control-Allow-Credentials', 'true')
+                    response.set_cookie('user_id', user_id, max_age=86400, httponly=False)
+                    return response, 200
             
-            if result and result[0]['Password'] == password:
-                student_data = result[0]
-                
-                # Create user object
-                user = Student(
-                    usn=student_data['USN'],
-                    name=student_data['Name'],
-                    email=student_data['E_Mail'],
-                    dept_id=student_data['Dept_ID'],
-                    password=student_data['Password']
-                )
-                
-                login_user(user)
+            # Authentication failed - either user not found or password incorrect
+            return jsonify({'error': 'Invalid faculty ID or password'}), 401
+        else:
+            # Try student login by USN
+            student = Student.get_by_id(user_id)
+            
+            if student and student.verify_password(password):
+                login_user(student)
                 role = 'student'
                 redirect_url = '/student/dashboard'
                 
@@ -93,6 +83,25 @@ def login():
                 response.headers.add('Access-Control-Allow-Origin', '*')
                 response.headers.add('Access-Control-Allow-Credentials', 'true')
                 response.set_cookie('user_id', user_id, max_age=86400, httponly=False)
+                return response, 200
+            
+            # Try student login by email
+            student = Student.get_by_email(user_id)
+            
+            if student and student.verify_password(password):
+                login_user(student)
+                role = 'student'
+                redirect_url = '/student/dashboard'
+                
+                response = jsonify({
+                    'message': 'Student login successful',
+                    'role': role,
+                    'redirect': redirect_url,
+                    'user_id': student.USN  # Return the USN as user_id
+                })
+                response.headers.add('Access-Control-Allow-Origin', '*')
+                response.headers.add('Access-Control-Allow-Credentials', 'true')
+                response.set_cookie('user_id', student.USN, max_age=86400, httponly=False)
                 return response, 200
         
         # If we get here, authentication failed
@@ -158,6 +167,43 @@ def student_login():
 def faculty_login():
     return render_template('login/faculty_login.html')
 
-@auth_bp.route('/admin-login', methods=['GET'])
+@auth_bp.route('/admin-login', methods=['GET', 'POST'])
 def admin_login():
-    return render_template('login/admin_login.html')
+    if request.method == 'GET':
+        return render_template('login/admin_login.html')
+    
+    try:
+        data = request.get_json()
+        if not data or 'admin_id' not in data or 'password' not in data:
+            return jsonify({'error': 'Missing admin_id or password'}), 400
+
+        admin_id = data['admin_id']
+        password = data['password']
+        
+        # Debug output
+        print(f"Admin login attempt: admin_id={admin_id}")
+        
+        # Check if admin exists in database
+        admin = Admin.get_by_id(int(admin_id))
+        
+        if admin and admin.verify_password(password):
+            login_user(admin)
+            
+            response = jsonify({
+                'message': 'Admin login successful',
+                'role': 'admin',
+                'redirect': '/admin/dashboard',
+                'user_id': str(admin.admin_id)
+            })
+            response.headers.add('Access-Control-Allow-Origin', '*')
+            response.headers.add('Access-Control-Allow-Credentials', 'true')
+            response.set_cookie('user_id', str(admin.admin_id), max_age=86400, httponly=False)
+            return response, 200
+        
+        # If we get here, authentication failed
+        return jsonify({'error': 'Invalid admin ID or password'}), 401
+
+    except Exception as e:
+        print(f"Admin login error: {str(e)}")
+        traceback.print_exc()
+        return jsonify({'error': 'An error occurred during login. Please try again.'}), 500

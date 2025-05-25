@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' http://localhost:5500 https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:;">
+    <title>Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Reset styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 0;
+            background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2.5rem;
+            background-color: #ffffff;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #d1d5db;
+            padding-bottom: 1.5rem;
+        }
+
+        .dashboard-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1a202c;
+        }
+
+        .user-info {
+            font-size: 1rem;
+            color: #718096;
+        }
+
+        .dashboard-actions button,
+        .dashboard-actions a {
+            padding: 0.75rem 1.25rem;
+            border: none;
+            border-radius: 0.5rem;
+            background-color: #805ad5;
+            color: #ffffff;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            margin-left: 0.5rem;
+        }
+
+        .dashboard-actions button:hover,
+        .dashboard-actions a:hover {
+            background-color: #6b46c1;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background-color: #ffffff;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            padding: 1.25rem;
+            text-align: center;
+            border-left: 4px solid #805ad5;
+        }
+
+        .stat-card h4 {
+            font-size: 0.875rem;
+            color: #718096;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1a202c;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .feature-card {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            background-color: #f7fafc;
+            padding: 1.25rem;
+            border-bottom: 1px solid #edf2f7;
+        }
+
+        .card-icon {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0.25rem;
+        }
+
+        .card-body {
+            padding: 1.25rem;
+            flex-grow: 1;
+        }
+
+        .card-text {
+            color: #718096;
+            font-size: 0.875rem;
+            margin-bottom: 1.25rem;
+            line-height: 1.5;
+        }
+
+        .card-footer {
+            padding: 1rem 1.25rem;
+            background-color: #f7fafc;
+            border-top: 1px solid #edf2f7;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background-color: #805ad5;
+            color: #ffffff;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #6b46c1;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-secondary {
+            background-color: #e2e8f0;
+            color: #4a5568;
+            border: none;
+        }
+
+        .btn-secondary:hover {
+            background-color: #cbd5e0;
+        }
+
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+
+        .welcome-message {
+            background-color: #edf2f7;
+            border-radius: 0.75rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .welcome-message h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 1rem;
+        }
+
+        .welcome-message p {
+            color: #4a5568;
+            font-size: 1.1rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .footer {
+            margin-top: 2.5rem;
+            text-align: center;
+            color: #718096;
+            font-size: 0.875rem;
+            border-top: 1px solid #f0f4f8;
+            padding-top: 1.5rem;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+            
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .dashboard-actions {
+                margin-top: 1rem;
+            }
+            
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">Admin Dashboard</h1>
+            <div class="user-info">
+                <span>Welcome, Admin</span>
+            </div>
+            <div class="dashboard-actions">
+                <a href="/auth/admin-login" class="logout-button">
+                    <span class="icon icon-logout">🚪</span>Logout
+                </a>
+            </div>
+        </div>
+
+        <div class="welcome-message">
+            <h2>Welcome to the Admin Dashboard</h2>
+            <p>From here, you can manage students, faculty, departments, leave requests, and view reports for the Leave Management System.</p>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-card">
+                <h4>Total Students</h4>
+                <div class="stat-value">120</div>
+            </div>
+            <div class="stat-card">
+                <h4>Total Faculty</h4>
+                <div class="stat-value">45</div>
+            </div>
+            <div class="stat-card">
+                <h4>Departments</h4>
+                <div class="stat-value">8</div>
+            </div>
+            <div class="stat-card">
+                <h4>Pending Leaves</h4>
+                <div class="stat-value">12</div>
+            </div>
+        </div>
+
+        <div class="card-grid">
+            <!-- Students Card -->
+            <div class="feature-card">
+                <div class="card-header">
+                    <span class="card-icon">👨‍🎓</span>
+                    <h3 class="card-title">Students</h3>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">View and manage all student accounts. Edit student details, check attendance, and review leave history.</p>
+                </div>
+                <div class="card-footer">
+                    <a href="/admin/students" class="btn btn-primary btn-block">Manage Students</a>
+                </div>
+            </div>
+
+            <!-- Faculty Card -->
+            <div class="feature-card">
+                <div class="card-header">
+                    <span class="card-icon">👨‍🏫</span>
+                    <h3 class="card-title">Faculty</h3>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">View and manage faculty members. Edit faculty details, assign subjects, and review performance.</p>
+                </div>
+                <div class="card-footer">
+                    <a href="/admin/faculty" class="btn btn-primary btn-block">Manage Faculty</a>
+                </div>
+            </div>
+
+            <!-- Departments Card -->
+            <div class="feature-card">
+                <div class="card-header">
+                    <span class="card-icon">🏢</span>
+                    <h3 class="card-title">Departments</h3>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">View and manage academic departments. Add new departments, edit details, and assign department heads.</p>
+                </div>
+                <div class="card-footer">
+                    <a href="/admin/departments" class="btn btn-primary btn-block">Manage Departments</a>
+                </div>
+            </div>
+
+            <!-- Leave Requests Card -->
+            <div class="feature-card">
+                <div class="card-header">
+                    <span class="card-icon">📝</span>
+                    <h3 class="card-title">Leave Requests</h3>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Review and manage all leave requests. Approve or reject pending requests and view leave history.</p>
+                </div>
+                <div class="card-footer">
+                    <a href="/admin/leaves" class="btn btn-primary btn-block">Manage Leave Requests</a>
+                </div>
+            </div>
+
+            <!-- Reports Card -->
+            <div class="feature-card">
+                <div class="card-header">
+                    <span class="card-icon">📊</span>
+                    <h3 class="card-title">Reports</h3>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Generate and view summary reports and statistics. Analyze leave patterns and department performance.</p>
+                </div>
+                <div class="card-footer">
+                    <a href="/admin/reports" class="btn btn-primary btn-block">View Reports</a>
+                </div>
+            </div>
+
+            <!-- Subjects Card -->
+            <div class="feature-card">
+                <div class="card-header">
+                    <span class="card-icon">📚</span>
+                    <h3 class="card-title">Subjects</h3>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Manage academic subjects and courses. Add new subjects, edit details, and assign to departments.</p>
+                </div>
+                <div class="card-footer">
+                    <a href="/admin/subjects" class="btn btn-primary btn-block">Manage Subjects</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            © 2025 College Leave Management System
+        </div>
+    </div>
+</body>
+
+</html>
