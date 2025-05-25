@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leave Request Details</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Reset styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 0;
+            background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .detail-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #ffffff;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #d1d5db;
+            padding-bottom: 1.5rem;
+        }
+
+        .detail-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1a202c;
+        }
+
+        .back-button {
+            padding: 0.75rem 1.25rem;
+            border: none;
+            border-radius: 0.5rem;
+            background-color: #3182ce;
+            color: #ffffff;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .back-button:hover {
+            background-color: #2c5282;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .detail-section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1a202c;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 0.5rem;
+        }
+
+        .detail-row {
+            display: flex;
+            margin-bottom: 0.75rem;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            width: 180px;
+            color: #4b5563;
+        }
+
+        .detail-value {
+            color: #1a202c;
+            flex: 1;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-pending {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-approved {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .status-rejected {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .reason-box {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 0.5rem;
+            white-space: pre-line;
+        }
+
+        .footer {
+            margin-top: 2rem;
+            text-align: center;
+            color: #718096;
+            font-size: 0.875rem;
+            border-top: 1px solid #f0f4f8;
+            padding-top: 1.5rem;
+        }
+
+        .icon {
+            margin-right: 8px;
+            font-size: 1.1rem;
+        }
+
+        .icon-back:before {
+            content: '←';
+        }
+    </style>
+</head>
+<body>
+    <div class="detail-container">
+        <div class="detail-header">
+            <h1 class="detail-title">Leave Request Details</h1>
+            <a href="/student/dashboard" class="back-button">
+                <span class="icon icon-back"></span>Back to Dashboard
+            </a>
+        </div>
+
+        <div class="detail-section">
+            <h2 class="section-title">Leave Information</h2>
+            <div class="detail-row">
+                <div class="detail-label">Leave ID</div>
+                <div class="detail-value">{{ leave.Leave_ID }}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Leave Type</div>
+                <div class="detail-value">{{ leave.Leave_Type }}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Status</div>
+                <div class="detail-value">
+                    {% if leave.Approval_Status == 'APPROVED' %}
+                        <span class="status-badge status-approved">Approved</span>
+                    {% elif leave.Approval_Status == 'REJECTED' %}
+                        <span class="status-badge status-rejected">Rejected</span>
+                    {% else %}
+                        <span class="status-badge status-pending">Pending</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Start Date</div>
+                <div class="detail-value">{{ leave.Start_Date.strftime('%Y-%m-%d') if leave.Start_Date else '' }}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">End Date</div>
+                <div class="detail-value">{{ leave.End_Date.strftime('%Y-%m-%d') if leave.End_Date else '' }}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Submission Date</div>
+                <div class="detail-value">{{ leave.Submission_Date.strftime('%Y-%m-%d %H:%M') if leave.Submission_Date else '' }}</div>
+            </div>
+
+        </div>
+
+        <div class="detail-section">
+            <h2 class="section-title">Reason</h2>
+            <div class="reason-box">{{ leave.Reason }}</div>
+        </div>
+
+        <div class="footer">
+            © 2023 College Leave Management System
+        </div>
+    </div>
+</body>
+</html>

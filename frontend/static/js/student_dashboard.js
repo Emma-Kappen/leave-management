@@ -67,11 +67,13 @@ function loadStudentData(userId) {
             // Sort by submission date (newest first)
             data.sort((a, b) => new Date(b.Submission_Date) - new Date(a.Submission_Date));
             
-            // Display only the most recent 3 leaves
-            const recentLeaves = data.slice(0, 3);
-            
-            recentLeaves.forEach(leave => {
+            // Display all leaves, not just the most recent 3
+            data.forEach(leave => {
                 const row = document.createElement('tr');
+                row.style.cursor = 'pointer';
+                row.onclick = function() {
+                    window.location.href = `/student/leave/${leave.Leave_ID}`;
+                };
                 
                 // Format status with appropriate badge class
                 let statusHtml;

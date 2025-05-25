@@ -1,17 +1,16 @@
 -- Drop existing tables
 DROP TABLE IF EXISTS Leave_Approver;
-DROP TABLE IF EXISTS Leave;
+DROP TABLE IF EXISTS `Leave`;
 DROP TABLE IF EXISTS Teaches;
 DROP TABLE IF EXISTS Attendance;
 DROP TABLE IF EXISTS Subject;
 DROP TABLE IF EXISTS Student;
 DROP TABLE IF EXISTS Staff;
-DROP TABLE IF EXISTS Admin;
 DROP TABLE IF EXISTS Department;
 
 -- Department Table
 CREATE TABLE Department (
-    ID INT PRIMARY KEY,
+    ID VARCHAR(10) PRIMARY KEY,
     Name VARCHAR(50) NOT NULL
 );
 
@@ -32,26 +31,16 @@ CREATE TABLE Student (
     Name VARCHAR(100),
     E_Mail VARCHAR(100) UNIQUE,
     Join_Date DATE,
-    Dept_ID INT,
+    Dept_ID VARCHAR(10),
     Password VARCHAR(50),
     FOREIGN KEY (Dept_ID) REFERENCES Department(ID)
-);
-
--- Admin Table
-CREATE TABLE Admin (
-    ID INT PRIMARY KEY,
-    Name VARCHAR(100),
-    E_Mail VARCHAR(100) UNIQUE,
-    Password VARCHAR(50)
 );
 
 -- Subject Table
 CREATE TABLE Subject (
     Code VARCHAR(10) PRIMARY KEY,
     Title VARCHAR(100),
-    Dept_ID INT,
-    Semester INT,
-    FOREIGN KEY (Dept_ID) REFERENCES Department(ID)
+    Credits INT
 );
 
 -- Attendance Table
@@ -80,12 +69,12 @@ CREATE TABLE Teaches (
 CREATE TABLE `Leave` (
     Leave_ID INT PRIMARY KEY,
     Applicant_ID VARCHAR(10),
-    Leave_Type ENUM('SICK', 'CASUAL', 'OTHER'),
+    Leave_Type VARCHAR(20),
     Reason TEXT,
     Start_Date DATE,
     End_Date DATE,
     Submission_Date DATETIME,
-    Approval_Status ENUM('PENDING', 'APPROVED', 'REJECTED'),
+    Approval_Status VARCHAR(10) DEFAULT 'PENDING',
     FOREIGN KEY (Applicant_ID) REFERENCES Student(USN) ON DELETE CASCADE
 );
 

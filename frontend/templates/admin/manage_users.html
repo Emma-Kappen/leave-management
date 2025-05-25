@@ -141,7 +141,7 @@
     <div class="manage-users-container">
         <h2 class="manage-users-title">Manage User Accounts</h2>
         <div class="add-new-button-container">
-            <a href="/admin/add-user" class="add-new-button">Add New User</a>
+            <a href="/frontend/templates/admin/add_user.html" class="add-new-button">Add New User</a>
         </div>
         <table class="user-list-table">
             <thead>
@@ -155,14 +155,35 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- User data will be loaded dynamically -->
+                <tr>
+                    <td>12345</td>
+                    <td>John Doe</td>
+                    <td>john.doe@example.com</td>
+                    <td>Student</td>
+                    <td>Computer Science</td>
+                    <td class="action-buttons">
+                        <a href="/admin/edit-user?id=12345" class="action-button">Edit</a>
+                        <button class="action-button">Delete</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>FS6789</td>
+                    <td>Dr. Alice Johnson</td>
+                    <td>alice.j@example.com</td>
+                    <td>Faculty</td>
+                    <td>Computer Science</td>
+                    <td class="action-buttons">
+                        <a href="/admin/edit-user?id=FS6789" class="action-button">Edit</a>
+                        <button class="action-button">Delete</button>
+                    </td>
+                </tr>
             </tbody>
         </table>
         <p class="no-users-message" style="display: none;">No user accounts found.</p>
         <div class="button-container">
-            <a href="/admin/dashboard" class="back-button">Go Back</a>
+            <a href="/frontend/templates/admin/admin_dashboard.html" class="back-button">Go Back</a>
         </div>
     </div>
-    <script src="/static/js/manage_users.js"></script>
+    <!-- <script src="../static/js/manage_users.js"></script> -->
 </body>
 </html>

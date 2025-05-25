@@ -126,34 +126,34 @@
         <form id="edit-user-form">
             <div class="form-group">
                 <label for="user_id" class="form-label">User ID</label>
-                <input type="text" id="user_id" name="user_id" class="form-input" value="{{ user.id }}" readonly>
+                <input type="text" id="user_id" name="user_id" class="form-input" value="" readonly>
             </div>
             <div class="form-group">
                 <label for="name" class="form-label">Name</label>
-                <input type="text" id="name" name="name" class="form-input" value="{{ user.name }}" required>
+                <input type="text" id="name" name="name" class="form-input" value="" required>
             </div>
             <div class="form-group">
                 <label for="email" class="form-label">Email</label>
-                <input type="email" id="email" name="email" class="form-input" value="{{ user.email }}" required>
+                <input type="email" id="email" name="email" class="form-input" value="" required>
             </div>
             <div class="form-group">
                 <label for="role" class="form-label">Role</label>
                 <select id="role" name="role" class="form-select" required>
-                    <option value="student" {% if user.role == 'student' %}selected{% endif %}>Student</option>
-                    <option value="faculty" {% if user.role == 'faculty' %}selected{% endif %}>Faculty</option>
-                    <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
+                    <option value="student">Student</option>
+                    <option value="faculty">Faculty</option>
+                    <option value="admin">Admin</option>
                 </select>
             </div>
             <div class="form-group">
                 <label for="department" class="form-label">Department (Optional)</label>
-                <input type="text" id="department" name="department" class="form-input" value="{{ user.department }}">
+                <input type="text" id="department" name="department" class="form-input" value="">
             </div>
             <div class="submit-button-container">
-                <a href="/admin/manage-users" class="back-button">Cancel</a>
+                <a href="/frontend/templates/admin/admin_dashboard.html" class="back-button">Cancel</a>
                 <button type="submit" class="submit-button">Save Changes</button>
             </div>
         </form>
     </div>
-    <script src="/static/js/edit_user.js"></script>
+    <!-- <script src="/static/js/edit_user.js"></script> -->
 </body>
 </html>

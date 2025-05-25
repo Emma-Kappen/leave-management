@@ -110,20 +110,29 @@
         </div>
 
         <div class="navigation-cards">
-            <a href="/admin/manage-users" class="nav-card">
+            <a href="/frontend/templates/admin/department_view.html" class="nav-card">
+                <h3>View Departments & Users</h3>
+                <p>Manage and view department and user information.</p>
+            </a>
+            <a href="/frontend/templates/admin/manage_users.html" class="nav-card">
                 <h3>Manage User Accounts</h3>
                 <p>Create, edit, and delete user accounts.</p>
             </a>
-            <a href="/admin/all-leaves" class="nav-card">
+            <a href="/frontend/templates/admin/all_leaves.html" class="nav-card">
                 <h3>View All Leave Requests</h3>
                 <p>Monitor all leave applications across the system.</p>
             </a>
-        </div>
+            </div>
 
         <div class="dashboard-content">
-            <p>Welcome to the admin dashboard. Use the cards above to manage users and monitor leave requests.</p>
+            <p>This is the admin dashboard. More widgets and summaries can be added here.</p>
         </div>
     </div>
-    <script src="/static/js/admin_dashboard.js"></script>
+    <!-- <script>
+        function logout() {
+            // In a real application, handle backend admin logout.
+            window.location.href = '/templates/login/index.html'; // Redirect to the common login page
+        }
+    </script> -->
 </body>
 </html>
