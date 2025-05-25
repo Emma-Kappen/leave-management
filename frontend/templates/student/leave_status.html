@@ -132,38 +132,17 @@
                     <th>Status</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="leave-status-body">
                 <tr>
-                    <td>Sick Leave</td>
-                    <td>BCS401 - Analysis and Design of Algorithms</td>
-                    <td>2024-03-01</td>
-                    <td>2024-03-03</td>
-                    <td>Fever</td>
-                    <td><span class="status-badge status-approved">Approved</span></td>
+                    <td colspan="6" style="text-align: center;">Loading...</td>
                 </tr>
-                <tr>
-                    <td>Casual Leave</td>
-                    <td>BA1402 - Artificial Intelligence</td>
-                    <td>2024-03-10</td>
-                    <td>2024-03-10</td>
-                    <td>Personal reason</td>
-                    <td><span class="status-badge status-pending">Pending</span></td>
-                </tr>
-                <tr>
-                    <td>Medical Leave</td>
-                    <td>BCS403 - Database Management Systems</td>
-                    <td>2024-03-15</td>
-                    <td>2024-03-19</td>
-                    <td>Fracture</td>
-                    <td><span class="status-badge status-rejected">Rejected</span></td>
-                </tr>
-                </tbody>
+            </tbody>
         </table>
         <p class="no-leaves-message" style="display: none;">No leave applications found.</p>
         <div class="button-container">
-            <a href="/frontend/templates/student/dashboard.html" class="back-button">Go Back</a>
+            <a href="/student/dashboard" class="back-button">Go Back</a>
         </div>
     </div>
-    <!-- <script src="/frontend/static/js/leave_status.js"></script> -->
+    <script src="/frontend/static/js/leave_status.js"></script>
 </body>
 </html>
