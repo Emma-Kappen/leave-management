@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for
 from flask_login import login_user, logout_user, login_required, current_user
 from ..models import Student, Staff
+from ..db import execute_query
 import traceback
 
 auth_bp = Blueprint('auth', __name__)
@@ -27,12 +28,26 @@ def login():
         print(f"Login attempt: user_id={user_id}, password={'*' * len(password)}")
         
         # Check if user exists in database
-        if user_id.startswith(('S')):
+        if user_id.startswith(('S', 'FAC', 'F')):
             # Faculty login
-            user = Staff.get_by_id(user_id)
-            if user and user.verify_password(password):
+            query = "SELECT * FROM Staff WHERE ID = %s"
+            result = execute_query(query, (user_id,))
+            
+            if result and result[0]['Password'] == password:
+                # Determine role based on designation
+                staff_data = result[0]
+                role = 'admin' if staff_data['Designation'] == 'Administrator' else 'faculty'
+                
+                # Create user object
+                user = Staff(
+                    id=staff_data['ID'],
+                    name=staff_data['Name'],
+                    email=staff_data['E_Mail'],
+                    designation=staff_data['Designation'],
+                    password=staff_data['Password']
+                )
+                
                 login_user(user)
-                role = user.role
                 redirect_url = f'/{role}/dashboard'
                 
                 response = jsonify({
@@ -45,10 +60,26 @@ def login():
                 response.headers.add('Access-Control-Allow-Credentials', 'true')
                 response.set_cookie('user_id', user_id, max_age=86400, httponly=False)
                 return response, 200
+            else:
+                # Authentication failed - either user not found or password incorrect
+                return jsonify({'error': 'Invalid faculty ID or password'}), 401
         else:
             # Student login
-            user = Student.get_by_id(user_id)
-            if user and user.verify_password(password):
+            query = "SELECT * FROM Student WHERE USN = %s"
+            result = execute_query(query, (user_id,))
+            
+            if result and result[0]['Password'] == password:
+                student_data = result[0]
+                
+                # Create user object
+                user = Student(
+                    usn=student_data['USN'],
+                    name=student_data['Name'],
+                    email=student_data['E_Mail'],
+                    dept_id=student_data['Dept_ID'],
+                    password=student_data['Password']
+                )
+                
                 login_user(user)
                 role = 'student'
                 redirect_url = '/student/dashboard'

@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' http://localhost:5500 https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:;">
+    <title>Leave Request Details</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Reset styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 0;
+            background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .review-container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 2.5rem;
+            background-color: #ffffff;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #d1d5db;
+            padding-bottom: 1.5rem;
+        }
+
+        .review-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1a202c;
+        }
+
+        .header-actions a {
+            padding: 0.75rem 1.25rem;
+            border: none;
+            border-radius: 0.5rem;
+            background-color: #10b981;
+            color: #ffffff;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            margin-left: 0.5rem;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .header-actions a:hover {
+            background-color: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .leave-details {
+            background-color: #f9fafb;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .detail-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1a202c;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 0.5rem;
+        }
+
+        .detail-row {
+            display: flex;
+            margin-bottom: 0.75rem;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            width: 180px;
+            color: #4b5563;
+        }
+
+        .detail-value {
+            color: #1a202c;
+            flex: 1;
+        }
+
+        .reason-box {
+            background-color: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 0.5rem;
+            white-space: pre-line;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-pending {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-approved {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .status-rejected {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .approve-btn,
+        .reject-btn,
+        .reset-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .approve-btn {
+            background-color: #10b981;
+            color: #ffffff;
+        }
+
+        .approve-btn:hover {
+            background-color: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .reject-btn {
+            background-color: #ef4444;
+            color: #ffffff;
+        }
+
+        .reject-btn:hover {
+            background-color: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .reset-btn {
+            background-color: #f59e0b;
+            color: #ffffff;
+        }
+
+        .reset-btn:hover {
+            background-color: #d97706;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .attachment-section {
+            margin-top: 2rem;
+        }
+
+        .attachment-link {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.75rem 1.25rem;
+            background-color: #f3f4f6;
+            border-radius: 0.5rem;
+            color: #4b5563;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .attachment-link:hover {
+            background-color: #e5e7eb;
+            color: #1a202c;
+        }
+
+        .icon {
+            margin-right: 8px;
+            font-size: 1.1rem;
+        }
+
+        .icon-back:before {
+            content: '←';
+        }
+
+        .icon-pdf:before {
+            content: '📄';
+        }
+
+        .footer {
+            margin-top: 2.5rem;
+            text-align: center;
+            color: #718096;
+            font-size: 0.875rem;
+            border-top: 1px solid #f0f4f8;
+            padding-top: 1.5rem;
+        }
+
+        .error-message {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .success-message {
+            background-color: #dcfce7;
+            color: #166534;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .info-message {
+            background-color: #e0f2fe;
+            color: #0369a1;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="review-container">
+        <div class="review-header">
+            <h1 class="review-title">Leave Request Details</h1>
+            <div class="header-actions">
+                <a href="/faculty/dashboard" class="back-btn">
+                    <span class="icon icon-back"></span>Back to Dashboard
+                </a>
+            </div>
+        </div>
+
+        {% if request.args.get('success') %}
+        <div class="success-message">
+            <p>{{ request.args.get('success') }}</p>
+        </div>
+        {% endif %}
+
+        {% if request.args.get('error') or error %}
+        <div class="error-message">
+            <p>{{ request.args.get('error') or error }}</p>
+        </div>
+        {% endif %}
+
+        {% if not error %}
+        <div class="leave-details">
+            <div class="detail-section">
+                <h2 class="section-title">Student Information</h2>
+                <div class="detail-row">
+                    <div class="detail-label">USN</div>
+                    <div class="detail-value">{{ leave.Applicant_ID }}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Name</div>
+                    <div class="detail-value">{{ leave.Student_Name }}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Email</div>
+                    <div class="detail-value">{{ leave.Student_Email }}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Department</div>
+                    <div class="detail-value">{{ leave.Department_Name }}</div>
+                </div>
+            </div>
+
+            <div class="detail-section">
+                <h2 class="section-title">Leave Details</h2>
+                <div class="detail-row">
+                    <div class="detail-label">Subject</div>
+                    <div class="detail-value">{{ leave.Subject_Title }} ({{ leave.Subject_Code }})</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Leave Type</div>
+                    <div class="detail-value">{{ leave.Leave_Type }}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Duration</div>
+                    <div class="detail-value">
+                        {% if leave.Start_Date == leave.End_Date %}
+                            {{ leave.Start_Date }}
+                        {% else %}
+                            {{ leave.Start_Date }} to {{ leave.End_Date }}
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Submission Date</div>
+                    <div class="detail-value">{{ leave.Submission_Date }}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Status</div>
+                    <div class="detail-value">
+                        {% if leave.Approval_Status == 'PENDING' %}
+                            <span class="status-badge status-pending">Pending</span>
+                        {% elif leave.Approval_Status == 'APPROVED' %}
+                            <span class="status-badge status-approved">Approved</span>
+                        {% elif leave.Approval_Status == 'REJECTED' %}
+                            <span class="status-badge status-rejected">Rejected</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Reason</div>
+                    <div class="detail-value">
+                        <div class="reason-box">{{ leave.Reason }}</div>
+                    </div>
+                </div>
+            </div>
+
+            {% if attachment_path %}
+            <div class="detail-section">
+                <h2 class="section-title">Supporting Document</h2>
+                <a href="{{ attachment_path }}" target="_blank" class="attachment-link">
+                    <span class="icon icon-pdf"></span>View Document
+                </a>
+            </div>
+            {% endif %}
+
+            {% if approver_info %}
+            <div class="detail-section">
+                <h2 class="section-title">Review Information</h2>
+                <div class="detail-row">
+                    <div class="detail-label">Reviewed By</div>
+                    <div class="detail-value">{{ approver_info.Approver_Name }}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Decision Date</div>
+                    <div class="detail-value">{{ approver_info.Decision_Date }}</div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if is_future_leave %}
+            {% if leave.Approval_Status == 'PENDING' %}
+            <form action="/faculty/leave/{{ leave.Leave_ID }}/review" method="POST" class="action-buttons">
+                <button type="submit" name="action" value="approve" class="approve-btn">Approve Leave</button>
+                <button type="submit" name="action" value="reject" class="reject-btn">Reject Leave</button>
+            </form>
+            {% else %}
+            <div class="info-message">
+                <p>This is a future leave request. You can update its status if needed.</p>
+            </div>
+            <form action="/faculty/leave/{{ leave.Leave_ID }}/review" method="POST" class="action-buttons">
+                {% if leave.Approval_Status != 'APPROVED' %}
+                <button type="submit" name="action" value="approve" class="approve-btn">Approve Leave</button>
+                {% endif %}
+                {% if leave.Approval_Status != 'REJECTED' %}
+                <button type="submit" name="action" value="reject" class="reject-btn">Reject Leave</button>
+                {% endif %}
+                {% if leave.Approval_Status != 'PENDING' %}
+                <button type="submit" name="action" value="reset" class="reset-btn">Reset to Pending</button>
+                {% endif %}
+            </form>
+            {% endif %}
+        {% elif leave.Approval_Status == 'PENDING' %}
+            <form action="/faculty/leave/{{ leave.Leave_ID }}/review" method="POST" class="action-buttons">
+                <button type="submit" name="action" value="approve" class="approve-btn">Approve Leave</button>
+            </form>
+            <div class="info-message">
+                <p>This leave request is for today or a past date. You can only approve it or leave it pending.</p>
+            </div>
+        {% endif %}
+
+        {% endif %}
+        <div class="footer">
+            © 2023 College Leave Management System
+        </div>
+    </div>
+</body>
+
+</html>

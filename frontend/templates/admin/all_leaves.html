@@ -134,35 +134,14 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>Student</td>
-                    <td>John Doe</td>
-                    <td>Sick Leave</td>
-                    <td>BCS401 - Analysis and Design of Algorithms</td>
-                    <td>2024-03-01</td>
-                    <td>2024-03-03</td>
-                    <td>Fever</td>
-                    <td><span class="status-badge status-approved">Approved</span></td>
-                    <td>2024-02-28</td>
-                </tr>
-                <tr>
-                    <td>Faculty</td>
-                    <td>Dr. Smith</td>
-                    <td>Casual Leave</td>
-                    <td>-</td>
-                    <td>2024-03-10</td>
-                    <td>2024-03-10</td>
-                    <td>Personal reason</td>
-                    <td><span class="status-badge status-pending">Pending</span></td>
-                    <td>2024-03-09</td>
-                </tr>
-                </tbody>
+                <!-- Leave data will be loaded dynamically -->
+            </tbody>
         </table>
         <p class="no-leaves-message" style="display: none;">No leave requests found.</p>
         <div class="button-container">
-            <a href="/frontend/templates/admin/admin_dashboard.html" class="back-button">Go Back</a>
+            <a href="/admin/dashboard" class="back-button">Go Back</a>
         </div>
     </div>
-    <!-- <script src="/static/js/all_leaves.js"></script> -->
+    <script src="/static/js/all_leaves.js"></script>
 </body>
 </html>
