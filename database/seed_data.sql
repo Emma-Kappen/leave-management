@@ -14,7 +14,7 @@ INSERT INTO Staff (Staff_ID, Name, E_Mail, Password, Dept_ID) VALUES
 
 -- Admin
 INSERT INTO Admin (Admin_ID, Name, E_Mail, Password) VALUES
-(1, 'Principal Raghavan', 'principal@college.edu', 'adminpass');
+(12345, 'Principal Raghavan', 'principal@college.edu', 'adminpass');
 
 -- Subjects
 INSERT INTO Subject (Subject_Code, Subject_Name, Dept_ID) VALUES
