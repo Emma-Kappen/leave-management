@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Attendance</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Basic Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #ffffff;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .student-info {
+            background-color: #f3f4f6;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .student-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 0.5rem;
+        }
+
+        .student-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+
+        .student-detail {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .detail-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 0.25rem;
+        }
+
+        .detail-value {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #111827;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 0.9rem;
+        }
+
+        .data-table th {
+            background-color: #f3f4f6;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .data-table tbody tr:hover {
+            background-color: #f9fafb;
+        }
+
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .status-present {
+            color: #16a34a;
+            font-weight: 500;
+        }
+
+        .status-absent {
+            color: #dc2626;
+            font-weight: 500;
+        }
+
+        .no-data-message {
+            text-align: center;
+            color: #6b7280;
+            font-size: 1rem;
+            margin-top: 2rem;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+        }
+
+        .back-button {
+            padding: 0.75rem 1.25rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            background-color: #f9fafb;
+            color: #111827;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.2s ease;
+        }
+
+        .back-button:hover {
+            background-color: #edf2f7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="page-title">Student Attendance</h2>
+        
+        <div class="student-info">
+            <h3 class="student-name">{{ student.Name }}</h3>
+            <div class="student-details">
+                <div class="student-detail">
+                    <div class="detail-label">USN</div>
+                    <div class="detail-value">{{ student.USN }}</div>
+                </div>
+                <div class="student-detail">
+                    <div class="detail-label">Email</div>
+                    <div class="detail-value">{{ student.E_Mail }}</div>
+                </div>
+                <div class="student-detail">
+                    <div class="detail-label">Department</div>
+                    <div class="detail-value">{{ student.Department }}</div>
+                </div>
+                <div class="student-detail">
+                    <div class="detail-label">Semester</div>
+                    <div class="detail-value">{{ student.Semester }}</div>
+                </div>
+            </div>
+        </div>
+        
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Subject</th>
+                    <th>Subject Code</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if attendance %}
+                    {% for record in attendance %}
+                    <tr>
+                        <td>{{ record.Date }}</td>
+                        <td>{{ record.Subject_Name }}</td>
+                        <td>{{ record.Subject_Code }}</td>
+                        <td class="{% if record.Status == 'Present' %}status-present{% else %}status-absent{% endif %}">
+                            {{ record.Status }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="4" class="no-data-message">No attendance records found.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+        
+        <div class="button-container">
+            <a href="{{ url_for('admin.manage_students') }}" class="back-button">Back to Students</a>
+        </div>
+    </div>
+</body>
+</html>

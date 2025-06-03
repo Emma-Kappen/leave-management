@@ -205,6 +205,31 @@ def apply_leave_with_file():
 def student_dashboard():
     return render_template('student/dashboard.html')
 
+@student_bp.route('/leave/<int:leave_id>', methods=['GET'])
+@login_required
+def leave_detail(leave_id):
+    user_id = get_current_user_id()
+    
+    if not user_id:
+        return jsonify({'error': 'User not authenticated'}), 401
+    
+    try:
+        # Query the database for leave details
+        query = """
+        SELECT l.*
+        FROM `Leave` l
+        WHERE l.Leave_ID = %s AND l.Applicant_ID = %s
+        """
+        
+        result = execute_query(query, (leave_id, user_id))
+        
+        if result:
+            return render_template('student/leave_detail.html', leave=result[0])
+        else:
+            return render_template('error/404.html', message="Leave request not found"), 404
+    except Exception as e:
+        return render_template('error/500.html', message=str(e)), 500
+
 @student_bp.route('/apply-leave-page', methods=['GET'])
 @login_required
 def apply_leave_page():

@@ -1,61 +1,191 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const applyLeaveForm = document.getElementById('apply-leave-form');
-    const startDateInput = document.getElementById('startDate');
-    const endDateInput = document.getElementById('endDate');
-    const subjectSelect = document.getElementById('subject'); // Get the subject select element
+// Apply Leave JavaScript
 
-    applyLeaveForm.addEventListener('submit', async (event) => {
-        event.preventDefault(); // Prevent default form submission
-
-        const startDate = new Date(startDateInput.value);
-        const endDate = new Date(endDateInput.value);
-        const timeDifference = endDate.getTime() - startDate.getTime();
-        const dayDifference = Math.ceil(timeDifference / (1000 * 3600 * 24)) + 1; // Include both start and end dates
-        const selectedSubject = subjectSelect.value; // Get the selected subject
-
-        // Basic client-side validation
-        if (endDate < startDate) {
-            alert('End date cannot be before the start date.');
-            return;
+// Check if user is authenticated
+function checkAuth() {
+    fetch('/auth/check-auth', {
+        method: 'GET',
+        credentials: 'include'
+    })
+    .then(response => {
+        if (!response.ok) {
+            // Redirect to login page if not authenticated
+            window.location.href = '/auth/student-login';
+            throw new Error('Not authenticated');
         }
-
-        if (dayDifference > 5) {
-            alert('Leave application cannot exceed 5 days.');
-            return;
+        return response.json();
+    })
+    .then(data => {
+        if (data.role !== 'student') {
+            // Redirect to appropriate dashboard if not a student
+            window.location.href = data.redirect;
         }
+        // Load student's subjects
+        loadSubjects();
+    })
+    .catch(error => {
+        console.error('Authentication check failed:', error);
+    });
+}
 
-        if (!selectedSubject) {
-            alert('Please select a subject.');
-            return;
+// Load subjects for the student
+function loadSubjects() {
+    fetch('/student/subjects', {
+        method: 'GET',
+        credentials: 'include'
+    })
+    .then(response => response.json())
+    .then(subjects => {
+        const subjectDropdown = document.getElementById('subject');
+        
+        // Clear existing options except the first one
+        while (subjectDropdown.options.length > 1) {
+            subjectDropdown.remove(1);
         }
-
-        // Prepare the data to send to the backend
-        const leaveData = {
-            leave_type: document.getElementById('leaveType').value,
-            reason: document.getElementById('reason').value,
-            start_date: startDateInput.value,
-            end_date: endDateInput.value
-        };
-
-        try {
-            // Send the data to the backend
-            const response = await fetch('/student/apply-leave', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(leaveData)
+        
+        if (subjects.length === 0) {
+            const option = document.createElement('option');
+            option.text = 'No subjects available';
+            option.disabled = true;
+            subjectDropdown.add(option);
+        } else {
+            // Add each subject to the dropdown
+            subjects.forEach(subject => {
+                const option = document.createElement('option');
+                option.value = subject.Code;
+                option.text = subject.Title;
+                subjectDropdown.add(option);
             });
+        }
+    })
+    .catch(error => {
+        console.error('Error loading subjects:', error);
+    });
+}
 
-            if (response.ok) {
-                const result = await response.json();
-                alert(result.message);
-                window.location.href = 'leave_status.html'; // Redirect to leave status page
-            } else {
-                const errorData = await response.json();
-                alert(`Failed to submit leave application: ${errorData.error || 'An error occurred.'}`);
-            }
-        } catch (error) {
-            console.error('Error submitting leave application:', error);
-            alert('Failed to submit leave application. Please try again.');
+// Validate form before submission
+function validateForm() {
+    const startDate = new Date(document.getElementById('startDate').value);
+    const endDate = new Date(document.getElementById('endDate').value);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time part for proper comparison
+    
+    if (startDate < today) {
+        alert('Start date cannot be in the past');
+        return false;
+    }
+    
+    if (endDate < startDate) {
+        alert('End date cannot be before start date');
+        return false;
+    }
+    
+    return true;
+}
+
+// Handle form submission
+function handleSubmit(event) {
+    event.preventDefault();
+    
+    if (!validateForm()) {
+        return;
+    }
+    
+    const form = document.getElementById('apply-leave-form');
+    const formData = new FormData(form);
+    
+    // Convert FormData to JSON for the main form data
+    const jsonData = {};
+    formData.forEach((value, key) => {
+        if (key !== 'attachment') { // Skip file input for JSON
+            jsonData[key] = value;
         }
     });
+    
+    // Check if there's a file to upload
+    const fileInput = document.getElementById('attachment');
+    const hasFile = fileInput.files && fileInput.files.length > 0;
+    
+    // Submit the form data
+    if (hasFile) {
+        // If there's a file, use FormData approach
+        submitWithFile(formData);
+    } else {
+        // If no file, use JSON approach
+        submitWithoutFile(jsonData);
+    }
+}
+
+// Submit form with file attachment
+function submitWithFile(formData) {
+    fetch('/student/apply-leave-with-file', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include'
+    })
+    .then(handleResponse)
+    .then(handleSuccess)
+    .catch(handleError);
+}
+
+// Submit form without file attachment
+function submitWithoutFile(jsonData) {
+    fetch('/student/apply-leave', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(jsonData),
+        credentials: 'include'
+    })
+    .then(handleResponse)
+    .then(handleSuccess)
+    .catch(handleError);
+}
+
+// Handle the response from the server
+function handleResponse(response) {
+    if (!response.ok) {
+        // Check if the response is JSON
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            return response.json().then(data => {
+                throw new Error(data.error || 'Failed to submit leave application');
+            });
+        } else {
+            throw new Error('Server error: Failed to submit leave application');
+        }
+    }
+    
+    // Check if the response is JSON before parsing
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+        return response.json();
+    } else {
+        return { message: 'Leave application submitted successfully!' };
+    }
+}
+
+// Handle successful submission
+function handleSuccess(data) {
+    alert(data.message || 'Leave application submitted successfully!');
+    window.location.href = '/student/dashboard';
+}
+
+// Handle submission error
+function handleError(error) {
+    alert(error.message || 'An error occurred while submitting your application.');
+}
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    checkAuth();
+    
+    // Set up form submission handler
+    const form = document.getElementById('apply-leave-form');
+    form.addEventListener('submit', handleSubmit);
+    
+    // Set minimum date for date inputs to today
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('startDate').min = today;
+    document.getElementById('endDate').min = today;
 });

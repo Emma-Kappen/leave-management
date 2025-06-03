@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' http://localhost:5500 https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:;">
     <title>Faculty Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -15,18 +17,20 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f9fafb;
+            background-color: #f0f4f8;
             margin: 0;
             padding: 0;
+            background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
         }
 
         .dashboard-container {
             max-width: 1200px;
             margin: 2rem auto;
-            padding: 2rem;
+            padding: 2.5rem;
             background-color: #ffffff;
-            border-radius: 0.5rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
 
         .dashboard-header {
@@ -35,108 +39,376 @@
             align-items: center;
             margin-bottom: 2rem;
             border-bottom: 1px solid #d1d5db;
-            padding-bottom: 1rem;
+            padding-bottom: 1.5rem;
         }
 
         .dashboard-title {
             font-size: 1.75rem;
             font-weight: 700;
-            color: #111827;
+            color: #1a202c;
         }
 
         .user-info {
             font-size: 1rem;
-            color: #4b5563;
+            color: #718096;
         }
 
         .dashboard-actions button,
         .dashboard-actions a {
-            padding: 0.5rem 1rem;
-            border: 1px solid #d1d5db;
-            border-radius: 0.375rem;
-            background-color: #f9fafb;
-            color: #111827;
+            padding: 0.75rem 1.25rem;
+            border: none;
+            border-radius: 0.5rem;
+            background-color: #10b981;
+            color: #ffffff;
             font-size: 0.875rem;
+            font-weight: 600;
             cursor: pointer;
             text-decoration: none;
-            transition: background-color 0.2s ease;
+            transition: all 0.2s ease;
             margin-left: 0.5rem;
         }
 
         .dashboard-actions button:hover,
         .dashboard-actions a:hover {
-            background-color: #edf2f7;
+            background-color: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .faculty-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .info-card {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 1.5rem;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .info-card-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #718096;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        .info-card-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1a202c;
         }
 
         .navigation-cards {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             grid-gap: 1.5rem;
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
         }
 
         .nav-card {
             background-color: #ffffff;
             border-radius: 0.5rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 1.75rem;
             text-align: center;
             text-decoration: none;
-            color: #111827;
-            transition: transform 0.2s ease-in-out;
+            color: #1a202c;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .nav-card:hover:before {
+            left: 100%;
         }
 
         .nav-card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
 
         .nav-card h3 {
             font-size: 1.25rem;
             font-weight: 600;
             margin-bottom: 0.75rem;
+            color: #10b981;
         }
 
-        .dashboard-content {
-            /* You can add faculty-specific widgets or summaries here later */
+        .nav-card p {
+            color: #718096;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1a202c;
+            margin-bottom: 1.25rem;
+            border-bottom: 2px solid #f0f4f8;
+            padding-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-title a {
+            font-size: 0.875rem;
+            color: #10b981;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title a:hover {
+            text-decoration: underline;
+        }
+
+        .leave-requests-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        .leave-requests-table th,
+        .leave-requests-table td {
             padding: 1rem;
-            background-color: #f0f0f0;
-            border-radius: 0.5rem;
+            text-align: left;
+            border-bottom: 1px solid #f0f4f8;
+        }
+
+        .leave-requests-table th {
+            font-weight: 600;
+            color: #1a202c;
+            background-color: #f9fafb;
+        }
+
+        .leave-requests-table tbody tr:hover {
+            background-color: #f9fafb;
+        }
+
+        .leave-requests-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .table-container {
+            max-height: 500px;
+            overflow-y: auto;
+            border-radius: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .review-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.375rem;
+            background-color: #10b981;
+            color: #ffffff;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: inline-block;
             text-align: center;
-            color: #6b7280;
+        }
+
+        .review-btn:hover {
+            background-color: #059669;
+            transform: translateY(-2px);
+        }
+
+        .footer {
+            margin-top: 2.5rem;
+            text-align: center;
+            color: #718096;
+            font-size: 0.875rem;
+            border-top: 1px solid #f0f4f8;
+            padding-top: 1.5rem;
+        }
+
+        /* Status badges */
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-pending {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-approved {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .status-rejected {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+
+        /* Icons */
+        .icon {
+            margin-right: 8px;
+            font-size: 1.1rem;
+        }
+
+        .icon-students:before {
+            content: '👨‍🎓';
+        }
+        
+        .icon-logout:before {
+            content: '🚪';
+        }
+
+        .icon-view-all:before {
+            content: '👁️';
+        }
+
+        .error-message {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
         }
     </style>
 </head>
+
 <body>
     <div class="dashboard-container">
         <div class="dashboard-header">
             <h1 class="dashboard-title">Faculty Dashboard</h1>
             <div class="user-info">
-                <span>Welcome, Dr. Smith</span>
-                <span>Faculty ID: FS12345</span>
+                <span>Welcome, {{ faculty_name }}</span>
+                <span style="margin-left: 1rem;">{{ faculty_designation }}</span>
             </div>
             <div class="dashboard-actions">
-                <button onclick="logout()">Logout</button>
+                <a href="/auth/faculty-login" class="login-button faculty-button">
+                    <span class="icon icon-logout"></span>Logout
+                </a>
+            </div>
+        </div>
+
+        <div class="faculty-info">
+            <div class="info-card">
+                <div class="info-card-title">Assigned Subjects</div>
+                <div class="info-card-value">{{ subjects|length }}</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">Students</div>
+                <div class="info-card-value">{{ student_count }}</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-title">Pending Leaves</div>
+                <div class="info-card-value">
+                    {{ leave_requests|selectattr('Approval_Status', 'equalto', 'PENDING')|list|length }}
+                </div>
             </div>
         </div>
 
         <div class="navigation-cards">
-            <a href="/frontend/templates/faculty/leave_history.html" class="nav-card">
-                <h3>View Leave Requests</h3>
-                <p>Review and process pending leave applications.</p>
-            </a>
-            <a href="/frontend/templates/faculty/leave_requests.html" class="nav-card">
-                <h3>Leave History</h3>
-                <p>View the history of processed leave applications.</p>
+            <a href="/faculty/student-details" class="nav-card">
+                <span class="icon icon-students"></span>
+                <h3>Student Details</h3>
+                <p>View information about your assigned students</p>
             </a>
         </div>
 
-        
+        {% if error %}
+        <div class="error-message">
+            <p>{{ error }}</p>
+        </div>
+        {% endif %}
+
+        <div class="leave-requests-section">
+            <h2 class="section-title">
+                Leave Requests
+                <a href="/faculty/review-leaves">
+                    <span class="icon icon-view-all"></span>View All
+                </a>
+            </h2>
+            <div class="table-container">
+                <table class="leave-requests-table">
+                    <thead>
+                        <tr>
+                            <th>USN</th>
+                            <th>Student</th>
+                            <th>Subject</th>
+                            <th>Leave Type</th>
+                            <th>Dates</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if leave_requests %}
+                            {% for leave in leave_requests %}
+                            <tr>
+                                <td>{{ leave.Applicant_ID }}</td>
+                                <td>{{ leave.Student_Name }}</td>
+                                <td>{{ leave.Subject_Title }}</td>
+                                <td>{{ leave.Leave_Type }}</td>
+                                <td>
+                                    {% if leave.Start_Date == leave.End_Date %}
+                                        {{ leave.Start_Date }}
+                                    {% else %}
+                                        {{ leave.Start_Date }} to {{ leave.End_Date }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if leave.Approval_Status == 'PENDING' %}
+                                        <span class="status-badge status-pending">Pending</span>
+                                    {% elif leave.Approval_Status == 'APPROVED' %}
+                                        <span class="status-badge status-approved">Approved</span>
+                                    {% elif leave.Approval_Status == 'REJECTED' %}
+                                        <span class="status-badge status-rejected">Rejected</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="/faculty/leave/{{ leave.Leave_ID }}" class="review-btn">Review</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="7" style="text-align: center;">No leave requests found</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="footer">
+            © 2025 College Leave Management System
+        </div>
     </div>
-    <script>
-        function logout() {
-            // In a real application, handle backend logout.
-            window.location.href = '/frontend/templates/login/faculty_login.html';
-        }
-    </script>
 </body>
+
 </html>

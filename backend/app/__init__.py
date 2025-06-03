@@ -1,54 +1,60 @@
-from flask import Flask
+from flask import Flask, render_template
 from flask_login import LoginManager
-from flask_cors import CORS
 from .db import init_db
-from .models import Student, Staff
-
-# Initialize extensions
-login_manager = LoginManager()
-login_manager.login_view = 'auth.student_login'
-
-@login_manager.user_loader
-def load_user(user_id):
-    """Load user by ID."""
-    # Check if it's a student
-    student = Student.get_by_id(user_id)
-    if student:
-        return student
-    
-    # Check if it's a staff member
-    staff = Staff.get_by_id(user_id)
-    if staff:
-        return staff
-    
-    return None
+from .routes.auth import auth_bp
+from .routes.student import student_bp
+from .routes.faculty import faculty_bp
+from .routes.admin import admin_bp, Admin
+import os
+from dotenv import load_dotenv
 
 def create_app():
-    """Create and configure the Flask application."""
+    # Load environment variables
+    load_dotenv()
+    
     app = Flask(__name__, 
                 template_folder='../../frontend/templates',
                 static_folder='../../frontend/static')
     
-    # Basic configuration
-    app.config['SECRET_KEY'] = 'dev-secret-key'
-    app.config['CORS_HEADERS'] = 'Content-Type'
+    # Configure app with SECRET_KEY
+    app.config.from_object('config.Config')
     
     # Initialize database
     init_db()
     
-    # Initialize extensions with app
+    # Configure login manager
+    login_manager = LoginManager()
     login_manager.init_app(app)
-    CORS(app, supports_credentials=True)
+    login_manager.login_view = 'auth.login'
+    
+    @login_manager.user_loader
+    def load_user(user_id):
+        # Check if user_id starts with a specific prefix to determine user type
+        if user_id.isdigit():
+            # Try to load as Admin (assuming Admin IDs are numeric)
+            from .routes.admin import Admin
+            admin = Admin.get_by_id(int(user_id))
+            if admin:
+                return admin
+        elif user_id.startswith(('F', 'S')):
+            # Try to load as Staff
+            from .models import Staff
+            return Staff.get_by_id(user_id)
+        else:
+            # Try to load as Student
+            from .models import Student
+            return Student.get_by_id(user_id)
+        return None
     
     # Register blueprints
-    from .routes.auth import auth_bp
-    from .routes.student import student_bp
-    from .routes.faculty import faculty_bp
-    from .routes.admin import admin_bp
-    
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(student_bp, url_prefix='/student')
     app.register_blueprint(faculty_bp, url_prefix='/faculty')
     app.register_blueprint(admin_bp, url_prefix='/admin')
+    
+    # Home route
+    @app.route('/')
+    def index():
+        return render_template('login/index.html')
     
     return app
